@@ -6,8 +6,14 @@ package com.example.appointmentscheduler;
  *
  * Class Appointment.java
  */
+
+/**
+ * @author Joshua Call
+ */
+
 public class Appointment {
 
+    //need some sort of datetime object to store booked times to black out in date time selector
     private int appointmentId;
     private String title;
     private String description;

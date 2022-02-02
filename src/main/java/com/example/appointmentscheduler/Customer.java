@@ -7,6 +7,10 @@ package com.example.appointmentscheduler;
  * Class Customer.java
  */
 
+/**
+ * @author Joshua Call
+ */
+
 public class Customer {
 
     private int customerId;
