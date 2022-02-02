@@ -2,6 +2,7 @@ package com.example.appointmentscheduler;
 
 import javafx.collections.ObservableList;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Database {
@@ -88,8 +89,8 @@ public class Database {
         String description;
         String location;
         String type;
-        String start;
-        String end;
+        LocalDateTime start;
+        LocalDateTime end;
         int customerId;
         int userId;
         int contactId;

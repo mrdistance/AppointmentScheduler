@@ -7,6 +7,8 @@ package com.example.appointmentscheduler;
  * Class Appointment.java
  */
 
+import java.time.LocalDateTime;
+
 /**
  * @author Joshua Call
  */
@@ -19,8 +21,8 @@ public class Appointment {
     private String description;
     private String location;
     private String type;
-    private String startDateTime;
-    private String endDateTime;
+    private LocalDateTime startDateTime;                //from sql will need to be converted to toLocalDateTime
+    private LocalDateTime endDateTime;
     private int customerId;
     private int userId;
     private int contactId;
@@ -38,7 +40,7 @@ public class Appointment {
      * @param contactId the contact id to set
      */
     public Appointment(int appointmentId, String title, String description, String location, String type,
-                       String startDateTime, String endDateTime, int customerId, int userId, int contactId){
+                       LocalDateTime startDateTime, LocalDateTime endDateTime, int customerId, int userId, int contactId){
         this.appointmentId = appointmentId;
         this.title = title;
         this.description = description;
@@ -128,28 +130,28 @@ public class Appointment {
     /**
      * @return the start date and time
      */
-    public String getStartDateTime() {
+    public LocalDateTime getStartDateTime() {
         return this.startDateTime;
     }
 
     /**
      * @param startDateTime the start date and time to set
      */
-    public void setStartDateTime(String startDateTime) {
+    public void setStartDateTime(LocalDateTime startDateTime) {
         this.startDateTime = startDateTime;
     }
 
     /**
      * @return the end date and time
      */
-    public String getEndDateTime() {
+    public LocalDateTime getEndDateTime() {
         return this.endDateTime;
     }
 
     /**
      * @param endDateTime the end date and time to set
      */
-    public void setEndDateTime(String endDateTime) {
+    public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
     }
 

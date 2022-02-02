@@ -13,7 +13,12 @@ package com.example.appointmentscheduler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+
 
 /**
  * @author Joshua Call
@@ -27,8 +32,11 @@ public class Data {
 
     //Bring in Database to build Data
     Database database;
-    //Track who is using the app to correctly populate appointments and customers, get from text field once successful login
-    private int userId;
+
+    //Track current date and time of user
+    LocalDateTime dateTime;
+    LocalDate date;
+    LocalTime time;
     //Add variables needed for jdbc and connecting and interacting with database
     private ArrayList<Country> countries;
     private ArrayList<FirstLevelDivision> divisions;
@@ -46,7 +54,8 @@ public class Data {
     private ArrayList<Appointment> updatedAppointments;
 
     public Data(int userId){
-        this.userId = userId;
+        //Initialize variables
+        dateTime = LocalDateTime.now();
 
         //Initialize lists
         countries = new ArrayList<>();
@@ -91,30 +100,69 @@ public class Data {
         return this.customers;
     }
 
+    //Currently returns appointments this week or this month
     public ObservableList<Appointment> getAppointments(int filterLevel){
-        if(filterLevel == 0) {
-            ObservableList<Appointment> allList = FXCollections.observableArrayList();
-            for (Appointment appointment : appointments) {
-                if (appointment.getUserId() == userId) {
-                    allList.add(appointment);
+        ObservableList<Appointment> appointmentList = FXCollections.observableArrayList();
+        dateTime = LocalDateTime.now();                                         //Get the date and time of users machine
+        date = dateTime.toLocalDate();
+        time = dateTime.toLocalTime();
+        int hour = time.getHour();
+        int minute = time.getMinute();
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
+        DayOfWeek week = date.getDayOfWeek();
+        int wDay = week.getValue();
+
+        for(Appointment appointment : appointments) {                           //Look at list of appointments and compare times
+            LocalDateTime appDateTime = appointment.getStartDateTime();
+            LocalDate appDate = appDateTime.toLocalDate();
+            LocalTime appTime = appDateTime.toLocalTime();
+            int appHour = appTime.getHour();
+            int appMinute = appTime.getMinute();
+            int appMonth = appDate.getMonthValue();
+            int appDay = appDate.getDayOfMonth();
+            DayOfWeek appWeek = appDate.getDayOfWeek();
+            int appWDay = appWeek.getValue();
+
+            if(filterLevel == 0){                                               //Display urgent upcoming appointments within 15 minutes of login
+                //Same day
+                if(date.equals(appDate)){
+                    //case 1 start same hour
+                    if(appHour == hour && (appMinute >= minute && appMinute <= minute + 15)){
+                        appointmentList.add(appointment);
+                    }
+                    //case 2 start beginning of next hour
+                    else if(appHour == hour + 1 && (60 + appMinute - minute <= 15)){
+                        appointmentList.add(appointment);
+                    }
                 }
             }
-            return allList;
-        }
-
-        //Utilize global datetime variable
-        else if(filterLevel == 1) {
-            ObservableList<Appointment> weekList = FXCollections.observableArrayList();
-            for (Appointment appointment : appointments) {
-                //Add all appointments within the next week with matching user Id to weeklist and return
+            else if (filterLevel == 1) {                                             //Display all Appointments
+                appointmentList.add(appointment);
             }
 
-        }else{      //Filter level == 2
-            ObservableList<Appointment> monthList = FXCollections.observableArrayList();
-            for(Appointment appointment: appointments){
-                //Add all appointments within the next month with matching user Id to monthList and return
+            else if (filterLevel == 2) {                                        //Display appointments for the week
+                //Must fall within today and sunday--no "tuesday today , next monday appointment"
+                if(wDay <= appWDay) {
+                    //case 1 same month within 7 days of today
+                    if (appMonth == month && (appDay >= day && appDay < day + 7)) {
+                        appointmentList.add(appointment);
+
+                    }
+                    //case 2 different months, within 7 days of today
+                    else if ((appMonth == month + 1 || month == 12 && appMonth == 1) && (date.lengthOfMonth() + appDay - day < 7)) {
+                        appointmentList.add(appointment);
+                    }
+                }
+            }
+            else {      //Filter level == 3
+                //Add all appointments this month
+                if(appMonth == month && appDay >= day){
+                    appointmentList.add(appointment);
+                }
             }
         }
+        return appointmentList;
     }
 
     //===========================================Customer Manipulation Methods==========================================
