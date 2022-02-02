@@ -24,16 +24,14 @@ public class Login {
     public boolean successful(String userName){
         User user = getUserByName(userName);
         if(user != null){
-            if(password == user.getPassword()) {
-                return true;
-            }
+            return password.equals(user.getPassword());
         }
         return false;
     }
 
     private User getUserByName(String userName){
         for(User user : users){
-            if(user.getUserName() == userName){
+            if(user.getUserName().equals(userName)){
                 return user;
             }
         }
