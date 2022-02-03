@@ -82,6 +82,14 @@ public class Database {
     }
 
     private void buildAppointments(ObservableList<Appointment> appointments){
+        //Conduct sql datetime to java localdatetime conversion here -- private helper method
+        //Time needs to be converted into localdatetime for java, then compared to eastern time est for offic hours of business location
+        //Then changed into UTC to store in database,  Easiest to convert localDateTime to eastern time and database time to eastern time and do all
+        //comparisons on eastern time?  To store in application while user logged in need to display in localdatetime, but compare in eastern time.
+        //Eastern time is defined for business hours of 8am to 10pm,  Only need to convert those parameters to local time so that appointments set by
+        //User fall within specified hours, so only during appointment scheduling, can store everything else as localdatetime while in use/display until storing
+        //In database.  So convert from UTC of database into localdatetime,  Then for scheduling and updating appointments only display the correct
+        //conversion of eastern time to local time as options for available slots.
         //Query Appointments table for id, name, address, postal code, phone, and division id
         //Loop through Rows in Appointment table and build list
         int id;
@@ -101,8 +109,13 @@ public class Database {
 
     public void save(ArrayList<Customer> addedCustomers, ArrayList<Customer> updatedCustomers, ArrayList<Customer> deletedCustomers,
                      ArrayList<Appointment> addedAppointments, ArrayList<Appointment> updatedAppointments, ArrayList<Appointment> deletedAppointments){
+        //Conduct sql datetime to java localdatetime conversion here ---private helper method
         //Open Connection
         //Write all the data from Added, Updated, and Deleted Lists for both customers and appointments
         //Close Connection
+    }
+
+    public LocalDateTime sqlToJavaTime(){
+        
     }
 }

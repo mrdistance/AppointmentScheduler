@@ -15,4 +15,7 @@ public class UserInterface {
     //Data object will be running the show while the application is open behind the scenes, needs to implement save function
     //From database class when user exits or presses save, which updates the database to mirror what the user is already seeing,
     //no need to requery database for that altered data because it is saved in the application first
+
+    //Have methods to get local date time and location and language to correctly display login page
+
 }

@@ -1,13 +1,13 @@
 package com.example.appointmentscheduler;
 
+import java.time.LocalDateTime;
+
 /**
  * This class provides an object to store appointments pulled from and pushed to a database
  * Requires setters, getters, and input validation as appointments can be created and deleted
  *
  * Class Appointment.java
  */
-
-import java.time.LocalDateTime;
 
 /**
  * @author Joshua Call
