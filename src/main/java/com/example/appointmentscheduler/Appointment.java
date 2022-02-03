@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 
 public class Appointment {
 
-    //need some sort of datetime object to store booked times to black out in date time selector
     private int appointmentId;
     private String title;
     private String description;
@@ -54,8 +53,8 @@ public class Appointment {
     }
 
 
-    //Implement Error checks inside these setter methods to clean up gui and main classes-----------------------------------
-    //Appointment Id should be generated from the database automatically upon creation -------------------------------------
+    //TODO Implement Error checks inside these setter methods to clean up gui and main classes-----------------------------------
+
 
     /**
      * @return the appointment id

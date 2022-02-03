@@ -9,6 +9,7 @@ import java.util.Date;
 
 /**
  * This class provides quick validation checking of credentials input by the user and logs all login attempts
+ * Establishes location and language for login screen, as well as stores which user is currently logged in
  *
  * Class Login.java
  */
@@ -22,23 +23,21 @@ public class Login {
     //Should pull data from users table in database to verify credentials, should gather info about users computer settings
     //like location and time zone (for time stamps)
 
-    private String userName;
-    private String password;
+    private User user;
     private String timestamp;
     private ZoneId zoneId;
-    ArrayList<User> users;
+
 
     /**
-     * @param userName the username taken from the login form
-     * @param password the password taken from the login form
+     * Constructor for class initializes and builds users array from database
+     * Sets up timestamp and current zone id as well as language
      */
-    public Login(String userName, String password){
-        this.userName = userName;
-        this.password = password;
-        users = new ArrayList<>();
+    public Login(){
+
         timestamp = new SimpleDateFormat("yyyy.MM.dd     HH.mm.ss").format(new Date());
         zoneId = ZoneId.systemDefault();
-        Database database = new Database(this.users);
+        language
+        Database database = new Database();
     }
 
     /**
@@ -47,8 +46,8 @@ public class Login {
      * @param userName the username taken from the login form
      * @return true if valid credentials, false if invalid credentials
      */
-    public boolean successful(String userName){
-        User user = getUserByName(userName);
+    public boolean successful(String userName, String password){
+        this.user = getUserByName(userName);
         if(user != null){                                   //Username is valid and exists
             if(password.equals(user.getPassword())){        //Password is valid and matches username
                 logAttempt("SUCCESS");
@@ -64,11 +63,9 @@ public class Login {
      * @return the user in the database associated with the username
      */
     private User getUserByName(String userName){
-        for(User user : users){
-            if(user.getUserName().equals(userName)){
-                return user;
-            }
-        }
+        //TODO add method to query database based on username and build a user object
+        //  make prepared statement and pass to build users
+        //  list = database.buildUsers(get specific user based on username from user table);
         return null;
     }
 
@@ -78,7 +75,7 @@ public class Login {
      * @param result the result of the login attempt (success or fail)
      */
     private void logAttempt(String result){
-        String logData = result + "     " + userName +  "     " + timestamp +"     " + zoneId;
+        String logData = result + "     " + user.getUserName() +  "     " + timestamp +"     " + zoneId;
         try (FileWriter writer = new FileWriter("login_activity.txt")){
             writer.append(logData);         //Write to file
         }catch (IOException ioe){

@@ -2,18 +2,20 @@ package com.example.appointmentscheduler;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.io.File;
+import java.sql.PreparedStatement;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This class provides an object to store all the database information utilized while the app is running
- * A connection will be opened and data will be pulled from the database once the object is initialized
- * Data will be stored within data structures and organized based on type, then the connection will close
- * The connection will reopen as the user exits the program and any modifications will be saved back to the database
- * This allows for offline use of the program and only requires a connection when opening or closing the app
+ * This class provides methods to retrieve and send data to and from the database.  Each method takes a prepared statment
+ * as an argument and in turn passes that statement on to the database class for processing.  Methods either return data
+ * in the form of lists, or return an integer specifying successful or failed database inserts, updates, and deletions.
  *
  * Class Database.java
  */
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 /**
  * @author Joshua Call
  */
+
 
 public class Data {
 
@@ -32,82 +35,54 @@ public class Data {
     LocalDate date;
     LocalTime time;
 
-    //Lists to store data from tables in database
-    private ArrayList<Country> countries;
-    private ArrayList<FirstLevelDivision> divisions;
-    private ArrayList<User> users;
-    private ArrayList<Contact> contacts;
-    private ObservableList<Customer> customers;
-    private ObservableList<Appointment> appointments;
-
-    //Lists to hold changes that need to be pushed back to database
-    private ArrayList<Customer> addedCustomers;
-    private ArrayList<Customer> deletedCustomers;
-    private ArrayList<Customer> updatedCustomers;
-    private ArrayList<Appointment> addedAppointments;
-    private ArrayList<Appointment> deletedAppointments;
-    private ArrayList<Appointment> updatedAppointments;
-
     public Data(){
         //Initialize variables
         dateTime = LocalDateTime.now();
 
-        //Initialize lists
-        countries = new ArrayList<>();
-        divisions = new ArrayList<>();
-        users = new ArrayList<>();
-        contacts = new ArrayList<>();
-        customers = FXCollections.observableArrayList();
-        appointments = FXCollections.observableArrayList();
-
-        //Lists to hold changes to be sent back to database, only used internally
-        addedCustomers = new ArrayList<>();
-        deletedCustomers = new ArrayList<>();
-        updatedCustomers = new ArrayList<>();
-        addedAppointments = new ArrayList<>();
-        deletedAppointments = new ArrayList<>();
-        updatedAppointments = new ArrayList<>();
-
         //Connect to the database and build objects
-        database = new Database(countries, divisions, users, contacts, customers, appointments);
+        database = new Database();
     }
 
 
-    //============================================List Getter Methods============================================
+    //============================================Data Getter Methods============================================
 
     /**
      * @return the countries stored in the database
      */
-    public ArrayList<Country> getCountries(){
-        return this.countries;
+    //TODO query database for list of countries matching prepared statement argument
+    public ArrayList<Country> getCountries(PreparedStatement ps){
+        return database.buildCountries(ps);
     }
 
     /**
      * @return the first level divisions stored in the database
      */
-    public ArrayList<FirstLevelDivision> getDivisions(){
-        return this.divisions;
+    //TODO query database for list of divisions matching prepared statement argument
+    public ArrayList<FirstLevelDivision> getDivisions(PreparedStatement ps){
+        return database.buildDivisions(ps);
     }
 
     /**
      * @return the users stored in the dabase
      */
-    public ArrayList<User> getUsers(){
-        return this.users;
+    //TODO query database for list of users matching prepared statement argument
+    public ArrayList<User> getUsers(PreparedStatement ps){
+        return database.buildUsers(ps);
     }
 
     /**
      * @return the contacts stored in the database
      */
-    public ArrayList<Contact> getContacts(){
-        return this.contacts;
+    //TODO query database for list of contacts matching prepared statement argument
+    public ArrayList<Contact> getContacts(PreparedStatement ps){
+        return database.buildContacts(ps);
     }
 
     /**
      * @return the customers stored in the database
      */
-    public ObservableList<Customer> getCustomers(){
-        return this.customers;
+    //TODO query database for list of customers matching prepared statement argument
+    public ObservableList<Customer> getCustomers(PreparedStatement ps) {return database.buildCustomers(ps);
     }
 
     /**
@@ -119,6 +94,9 @@ public class Data {
      * @return A list holding the filtered appointments
      */
     public ObservableList<Appointment> getAppointments(int filterLevel){
+        //FIXME call build appointment method of database to build a list for further filtering or make query specific enough
+        //        to perfectly filter results and then just return those instead of having to loop through list, so converty all local
+        //        variables into uct so can direct compare to database in query
         ObservableList<Appointment> appointmentList = FXCollections.observableArrayList();
         dateTime = LocalDateTime.now();                                         //Get the date and time of users machine
         date = dateTime.toLocalDate();
@@ -130,6 +108,7 @@ public class Data {
         DayOfWeek week = date.getDayOfWeek();
         int wDay = week.getValue();
 
+        //TODO move loop inside each filter level or make private helper method
         for(Appointment appointment : appointments) {                           //Look at list of appointments and compare times
             LocalDateTime appDateTime = appointment.getStartDateTime();
             LocalDate appDate = appDateTime.toLocalDate();
@@ -142,9 +121,11 @@ public class Data {
             int appWDay = appWeek.getValue();
 
             if (filterLevel == 0) {                                             //Display all Appointments
+                //TODO call build appointment method with prepared statement specifying all
                 appointmentList.add(appointment);
             }
             else if(filterLevel == 1){                                          //Display urgent upcoming appointments within 15 minutes of login
+                //TODO call build appointment method with prepared statement specifying same day within 15 minutes
                 //Must fall on same day
                 if(date.equals(appDate)){
                     //case 1 start same hour
@@ -158,6 +139,7 @@ public class Data {
                 }
             }
             else if (filterLevel == 2) {                                        //Display appointments for the week
+                //TODO call build appointment method with prepared statement specifying  within 7 days of same week
                 //Must fall within today and sunday--no "tuesday today , next monday appointment"
                 if(wDay <= appWDay) {
                     //case 1 same month within 7 days of today
@@ -171,6 +153,7 @@ public class Data {
                 }
             }
             else {      //Filter level == 3                                     //Display appointments for the month
+                //TODO call build appointment method with prepared statement specifying within 30 days of same month
                 if(appMonth == month && appDay >= day){
                     appointmentList.add(appointment);
                 }
@@ -179,117 +162,68 @@ public class Data {
         return appointmentList;
     }
 
+    public List<String> getReport(int reportNumber){
+        //TODO build 3 separate Prepared statements based on which report you want to build  to be passed to database.buildReport()
+        //  which will return a list back up that we can return and pass to a text area object line by line to display the report
+    }
+
     //===========================================Customer Manipulation Methods==========================================
 
+    //TODO have these methods return a prepared statemtent specifying what to do and passing to database insert, update, or delete method
     /**
      * @param customer the customer to add
      */
-    public void addCustomer(Customer customer){
-        addedCustomers.add(customer);
-        customers.add(customer);
+    public int addCustomer(Customer customer){
+        //TODO build prepared statment
+        int result = database.insert(ps)
+
     }
 
     /**
      * @param customer the customer to update
      */
-    public void updateCustomer(Customer customer){
-        updatedCustomers.add(customer);
-        Customer oldVersion = getCustomerById(customer.getCustomerId());
-        if(oldVersion != null) {
-            customers.set(customers.indexOf(oldVersion), customer);
-        }
+    public int updateCustomer(Customer customer){
+        //TODO build prepared statement
+                int result = database.update(ps)
     }
 
     /**
      * @param customer the customer to delete
      */
-    public void deleteCustomer(Customer customer){
-        deletedCustomers.add(customer);
-        for(Customer updatedCustomer: updatedCustomers){
-            if(updatedCustomer.getCustomerId() == customer.getCustomerId()){
-                updatedCustomers.remove(updatedCustomer);
-            }
-        }
-        for(Appointment appointment: appointments){
-            if(appointment.getCustomerId() == customer.getCustomerId()){
-                deleteAppointment(appointment);
-            }
-        }
+    public PreparedStatement deleteCustomer(Customer customer){
+        //TODO build prepared statment for all appointments connected to customer
+        int result1 = database.delete(ps)
+        //TODO build prepared statment for customer matching
+        int result2 = database.insert(ps)
 
-        customers.remove(customer);
-    }
-
-    /**
-     * @param id the id of the customer being searched for
-     * @return the customer with a matching id
-     */
-    private Customer getCustomerById(int id){
-        for(Customer customer: customers){
-            if(customer.getCustomerId() == id){
-                return customer;
-            }
-        }return null;
+        //TODO return 0 1 or 2 if all fail appointment success, customer and appointment success
     }
 
     //========================================Appointment Manipulation Methods==========================================
 
+    //TODO have these methods return a prepared statemtent specifying what to do and passing to database insert, update, or delete method
     /**
      * @param appointment the appointment to add
      */
-    public void addAppointment(Appointment appointment){
-        addedAppointments.add(appointment);
-        appointments.add(appointment);
+    public int addAppointment(Appointment appointment){
+        //TODO build prepared statment
+        int result = database.insert(ps)
     }
 
     /**
      * @param appointment the appointment to update
      */
-    public void updateAppointment(Appointment appointment){
-        updatedAppointments.add(appointment);
-        Appointment oldVersion = getAppointmentById(appointment.getAppointmentId());
-        if(oldVersion != null) {
-            appointments.set(appointments.indexOf(oldVersion), appointment);
-        }
+    public int updateAppointment(Appointment appointment){
+        //TODO build prepared statment
+        int result = database.update(ps)
     }
 
     /**
      * @param appointment the appointment to delete
      */
-    public void deleteAppointment(Appointment appointment){
-        deletedAppointments.add(appointment);
-        for(Appointment updatedAppointment: updatedAppointments){
-            if(updatedAppointment.getAppointmentId() == appointment.getAppointmentId()){
-                updatedAppointments.remove(updatedAppointment);
-            }
-        }
-        appointments.remove(appointment);
-    }
-
-    /**
-     * @param id the id of the appointment being searched for
-     * @return the appointment matching the id
-     */
-    private Appointment getAppointmentById(int id){
-        for(Appointment appointment: appointments){
-            if(appointment.getAppointmentId() == id){
-                return appointment;
-            }
-        }return null;
-    }
-
-    //==========================================Database Interaction Methods============================================
-
-    /**
-     * @param addedCustomers list of all customers added during this session
-     * @param updatedCustomers list of all customers updated during this session
-     * @param deletedCustomers list of all customers deleted during this session
-     * @param addedAppointments list of all appointments added during this session
-     * @param updatedAppointments list of all appointments updated during this session
-     * @param deletedAppointments list of all appointments deleted during this session
-     */
-    public void save(ArrayList<Customer> addedCustomers, ArrayList<Customer> updatedCustomers, ArrayList<Customer> deletedCustomers,
-                     ArrayList<Appointment> addedAppointments, ArrayList<Appointment> updatedAppointments, ArrayList<Appointment> deletedAppointments){
-        database.save(addedCustomers, updatedCustomers, deletedCustomers, addedAppointments, updatedAppointments, deletedAppointments);
+    public int deleteAppointment(Appointment appointment){
+        //TODO build prepared statment
+        int result = database.delete(ps)
     }
 
 }
