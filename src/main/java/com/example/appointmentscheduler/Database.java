@@ -29,6 +29,15 @@ public class Database {
 
     }
 
+    //========================================Getter Methods============================================================
+
+    public Connection getConnection(){
+        //Fixme find database driver info
+        Class.forName(com.mysql.cj.jdbc.Driver);
+        connection = DriverManager.getConnection(jdbc:mysql://localhost:3306/);
+        return this.connection;
+    }
+
     //===================================Database Interaction Methods===================================================
 
 
@@ -102,6 +111,7 @@ public class Database {
         //  conversion of eastern time to local time as options for available slots.
         //  Query Appointments table for id, name, address, postal code, phone, and division id
         //  Loop through Rows in Appointment table and build list
+
         int id;
         String title;
         String description;
@@ -117,23 +127,18 @@ public class Database {
         appointments.add(appointment);
     }
 
-    //TODO next 3 methods return 1 if success 0 if false
-
-    public int insert(PreparedStatement ps){
-        query(ps);
-        try
-            return 1 success
-        catch
-        return 0
+    /**
+     * This method takes a prepared statement and inserts, updates, or deletes items in the database, returns a number
+     * based on how many rows were affected
+     *
+     * @param ps the prepared statement for the query
+     * @return the number of rows affected
+     * @throws SQLException the exception if the connection fails
+     */
+    public int update(PreparedStatement ps) throws SQLException{
+        return ps.executeUpdate();
     }
 
-    public int update(PreparedStatement ps){
-        query(ps);
-    }
-
-    public int delete(PreparedStatement ps){
-        query(ps)
-    }
 
     //TODO based on report number have specific prepared statement passed to private query method, that formats the returned
     //  data into a list to be passed back to the calling method
@@ -148,11 +153,19 @@ public class Database {
     }
 
 
-    //FIXME query database based on prepared statement and return result set, calling method responsible for converting to
-    //        correct format to build objects
-    private ResultSet query(PreparedStatement ps){
-
+    /**
+     * This method takes a prepared statement and executes a query to the database then returns a result set
+     * that is formatted by the calling method before any objects are built
+     *
+     * @param ps the prepared statement for the query
+     * @return the result set
+     * @throws SQLException the exception if the connection fails
+     */
+    private ResultSet query(PreparedStatement ps) throws SQLException{
+        return ps.executeQuery();
     }
+
+
 
 
 }

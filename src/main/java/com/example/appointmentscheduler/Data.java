@@ -4,7 +4,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,16 +31,19 @@ import java.util.List;
 public class Data {
 
     //Bring in Database to build Data
-    Database database;
+    private Database database;
+
 
     //Track current date and time of user
-    LocalDateTime dateTime;
-    LocalDate date;
-    LocalTime time;
+    private LocalDateTime dateTime;
+    private LocalDate date;
+    private LocalTime time;
 
     public Data(){
         //Initialize variables
         dateTime = LocalDateTime.now();
+
+
 
         //Connect to the database and build objects
         database = new Database();
@@ -169,61 +175,163 @@ public class Data {
 
     //===========================================Customer Manipulation Methods==========================================
 
-    //TODO have these methods return a prepared statemtent specifying what to do and passing to database insert, update, or delete method
+
     /**
+     * This method opens a connection to the database, composes a prepared statement to insert the specified customer,
+     * then closes the connection
+     *
      * @param customer the customer to add
+     * @return 1 for success 0 for fail
+     * @throws SQLException the exception if connection fails
      */
-    public int addCustomer(Customer customer){
-        //TODO build prepared statment
-        int result = database.insert(ps)
-
+    public int addCustomer(Customer customer) throws SQLException{
+        String query = "Insert into customers (Customer_Name, Address, Postal_Code, Phone, Division_ID) " +
+                        "values (?, ?, ?, ?, ?)";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, customer.getCustomerName());
+        ps.setString(2, customer.getAddress());
+        ps.setString(3, customer.getPostalCode());
+        ps.setString(4, customer.getPhone());
+        ps.setInt(5, customer.getDivisionId());
+        int result = database.update(ps);
+        connection.close();
+        return result > 0 ? 1: 0;
     }
 
     /**
+     * This method opens a connection to the database, composes a prepared statement to update the specified customer,
+     * then closes the connection
+     *
      * @param customer the customer to update
+     * @return 1 for success 0 for fail
+     * @throws SQLException the exception if connection fails
      */
-    public int updateCustomer(Customer customer){
-        //TODO build prepared statement
-                int result = database.update(ps)
+
+
+    public int updateCustomer(Customer customer) throws SQLException{
+        String query = "Update customers set Customer_Name = ?, Address = ?, Postal_Code = ?, Phone = ?, Division_ID = ? " +
+                        "where Customer_ID = ?";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, customer.getCustomerName());
+        ps.setString(2, customer.getAddress());
+        ps.setString(3, customer.getPostalCode());
+        ps.setString(4, customer.getPhone());
+        ps.setInt(5, customer.getDivisionId());
+        ps.setInt(6, customer.getCustomerId());
+        int result = database.update(ps);
+        connection.close();
+        return result > 0 ? 1: 0;
     }
 
     /**
+     * This method opens a connection to the database, composes a prepared statement to delete the specified customer\
+     * and all of that customers appointments then closes the connection
+     *
      * @param customer the customer to delete
+     * @return 1 for success 0 for fail
+     * @throws SQLException the exception if connection fails
      */
-    public PreparedStatement deleteCustomer(Customer customer){
-        //TODO build prepared statment for all appointments connected to customer
-        int result1 = database.delete(ps)
-        //TODO build prepared statment for customer matching
-        int result2 = database.insert(ps)
-
-        //TODO return 0 1 or 2 if all fail appointment success, customer and appointment success
+    public int deleteCustomer(Customer customer) throws SQLException {
+        //Delete appointments
+        String query = "Delete from appointments where Customer_ID = ?";
+        Connection connection = database.getConnection();
+        PreparedStatement ps1 = connection.prepareStatement(query);
+        ps1.setInt(1, customer.getCustomerId());
+        int result1 = database.update(ps1);
+        //Delete customer
+        String query2 = "Delete from customers where Customer_ID = ?";
+        PreparedStatement ps2 = connection.prepareStatement(query2);
+        ps2.setInt(1, customer.getCustomerId());
+        int result2 = database.update(ps2);
+        connection.close();
+        return result1 + result2 > 0 ? 1 : 0;
     }
 
     //========================================Appointment Manipulation Methods==========================================
 
     //TODO have these methods return a prepared statemtent specifying what to do and passing to database insert, update, or delete method
+    //  they also have to do time formatting
+
     /**
+     * This method opens a connection to the database, composes a prepared statement to add the specified appointment,
+     * then closes the connection
+     *
      * @param appointment the appointment to add
+     * @return 1 for success 0 for fail
+     * @throws SQLException the exception if connection fails
      */
-    public int addAppointment(Appointment appointment){
-        //TODO build prepared statment
-        int result = database.insert(ps)
+    public int addAppointment(Appointment appointment) throws SQLException{
+        String query = "Insert into appointments (Title, Description, Location, Type, Start, End, Customer_ID, User_ID, Contact_ID) " +
+                        "Values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, appointment.getTitle());
+        ps.setString(2, appointment.getDescription());
+        ps.setString(3, appointment.getLocation());
+        ps.setString(4, appointment.getType());
+        //TODO Build private convert date method that takes local datetime and converts to sql and make sure correct set method used here
+        ps.setDate(5, convertDateToSQL(appointment.getStartDateTime()));
+        ps.setDate(6, convertDateToSQL(appointment.getEndDateTime()));
+        ps.setInt(7, appointment.getCustomerId());
+        ps.setInt(8, appointment.getUserId());
+        ps.setInt(9, appointment.getContactId());
+        int result = database.update(ps);
+        connection.close();
+        return result > 0 ? 1 : 0;
     }
 
     /**
+     * This method opens a connection to the database, composes a prepared statement to update the specified appointment,
+     * then closes the connection
+     *
      * @param appointment the appointment to update
+     * @return 1 for success 0 for fail
+     * @throws SQLException the exception if connection fails
      */
-    public int updateAppointment(Appointment appointment){
-        //TODO build prepared statment
-        int result = database.update(ps)
+    public int updateAppointment(Appointment appointment) throws SQLException{
+        String query = "Update appointments set Title = ?, Description = ?, Location = ?, Type = ?, Start = ?, End = ?, Customer_ID = ?, " +
+                        "User_ID = ?, Contact_ID = ? where Appointment_ID = ?";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, appointment.getTitle());
+        ps.setString(2, appointment.getDescription());
+        ps.setString(3, appointment.getLocation());
+        ps.setString(4, appointment.getType());
+        //TODO Build private convert date method that takes local datetime and converts to sql and make sure correct set method used here
+        ps.setDate(5, convertDateToSQL(appointment.getStartDateTime()));
+        ps.setDate(6, convertDateToSQL(appointment.getEndDateTime()));
+        ps.setInt(7, appointment.getCustomerId());
+        ps.setInt(8, appointment.getUserId());
+        ps.setInt(9, appointment.getContactId());
+        ps.setInt(10, appointment.getAppointmentId());
+        int result = database.update(ps);
+        connection.close();
+        return result > 0 ? 1 : 0;
     }
 
     /**
+     * This method opens a connection to the database, composes a prepared statement to delete the specified appointment,
+     * then closes the connection
+     *
      * @param appointment the appointment to delete
+     * @return 1 for success 0 for fail
+     * @throws SQLException the exception if connection fails
      */
-    public int deleteAppointment(Appointment appointment){
-        //TODO build prepared statment
-        int result = database.delete(ps)
+    public int deleteAppointment(Appointment appointment) throws SQLException{
+        String query = "Delete from appointments where Appointment_ID = ?";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setInt(1, appointment.getAppointmentId()));
+        int result = database.update(ps);
+        connection.close();
+        return result > 0 ? 1 : 0;
+    }
+
+    //Todo build method to convert the date to sql format
+    private String convertDateToSQL(String localDate){
+        return "";
     }
 
 }
