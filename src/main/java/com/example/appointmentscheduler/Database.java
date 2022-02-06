@@ -1,6 +1,8 @@
 package com.example.appointmentscheduler;
 
 import java.sql.*;
+
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,21 +23,51 @@ import java.util.List;
 
 public class Database {
 
-    private Connection connection;
-    //TODO add variables for database
+
+    //TODO add variables for database, these are a test, copied from jdbc helper
+    private static final String protocol = "jdbc";
+    private static final String vendor = ":mysql:";
+    private static final String location = "//localhost/";
+    private static final String databaseName = "client_schedule";
+    private static final String jdbcUrl = protocol + vendor + location + databaseName + "?connectionTimeZone = SERVER"; // LOCAL
+    private static final String driver = "com.mysql.cj.jdbc.Driver"; // Driver reference
+    private static final String userName = "root"; // my pc Username
+    private static String password = "Them@1lman12."; // my pc Password
+    //private static final String userName = "sqlUser"; // vm Username
+    //private static String password = "Passw0rd!"; // vm Password
+    private Connection connection;  // Connection Interface
 
 
+    //Constructor
     public Database() {
 
     }
 
-    //========================================Getter Methods============================================================
+    //========================================Connection Methods========================================================
 
     public Connection getConnection(){
-        //Fixme find database driver info
-        Class.forName(com.mysql.cj.jdbc.Driver);
-        connection = DriverManager.getConnection(jdbc:mysql://localhost:3306/);
+        try {
+            Class.forName(driver); // Locate Driver
+            connection = DriverManager.getConnection(jdbcUrl, userName, password); // Reference Connection object
+            System.out.println("Connection successful!");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error:" + e.getMessage());
+        }
+
         return this.connection;
+    }
+
+    public void closeConnection() {
+        try {
+            connection.close();
+            System.out.println("Connection closed!");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error:" + e.getMessage());
+        }
     }
 
     //===================================Database Interaction Methods===================================================
@@ -85,21 +117,25 @@ public class Database {
         contacts.add(contact);
     }
 
-    public ObservableList<Customer> buildCustomers(PreparedStatement ps){
-        //FIXME use private query method
-        //  Query Customer table for id, name, address, postal code, phone, and division id
-        //  Loop through Rows in Customers table and build list
-        int id;
-        String name;
-        String address;
-        String postalCode;
-        String phone;
-        int divisionId;
-        Customer customer = new Customer(id, name, address, postalCode, phone, divisionId);
-        customers.add(customer);
+    public ObservableList<Customer> buildCustomers(PreparedStatement ps) throws SQLException{
+
+        ObservableList<Customer> customers = FXCollections.observableArrayList();
+        ResultSet result = query(ps);
+        while(result.next()){
+            int id = result.getInt(1);
+            String name = result.getString(2);
+            String address = result.getString(3);
+            String postalCode = result.getString(4);
+            String phone = result.getString(5);
+            int divisionId = result.getInt(10);
+            Customer customer = new Customer(id, name, address, postalCode, phone, divisionId);
+            customers.add(customer);
+
+        }
+       return customers;
     }
 
-    public ObservableList<Appointment> buildAppointments(PreparedStatement ps){
+    public ObservableList<Appointment> buildAppointments(PreparedStatement ps) throws SQLException{
         //FIXME use private query method and pass ps
         //  Conduct sql datetime to java localdatetime conversion here -- private helper method
         //  Time needs to be converted into localdatetime for java, then compared to eastern time est for offic hours of business location
@@ -112,19 +148,29 @@ public class Database {
         //  Query Appointments table for id, name, address, postal code, phone, and division id
         //  Loop through Rows in Appointment table and build list
 
-        int id;
-        String title;
-        String description;
-        String location;
-        String type;
-        LocalDateTime start;
-        LocalDateTime end;
-        int customerId;
-        int userId;
-        int contactId;
-        Appointment appointment = new Appointment(id, title, description, location, type, start, end, customerId,
-                userId, contactId);
-        appointments.add(appointment);
+        ObservableList<Appointment> appointments= FXCollections.observableArrayList();
+        ResultSet result = query(ps);
+        while(result.next()){
+            int id = result.getInt(1);
+            String title = result.getString(2);
+            String desc = result.getString(3);
+            String location = result.getString(4);
+            String type = result.getString(5);
+            String start = result.getString(6);
+            String end = result.getString(7);
+            int customerId= result.getInt(12);
+            int userId = result.getInt(13);
+            int contactId = result.getInt(14);
+
+            //fixme need to convert start and end into eastern and string format for user appointment object from sql uct time
+            //  sql = yyyy-MM-dd HH-mm-ss   store user as sql format string for
+            //  easy save to database but convert time zones so all data the user recieves is the correct conversion of
+            // time zones from uct to eastern because office is eastern time all appointments must be between 8 and 10 eastern
+            Appointment appointment = new Appointment(id, title, desc, location, type, start, end, customerId, userId, contactId);
+            appointments.add(appointment);
+
+        }
+        return appointments;
     }
 
     /**

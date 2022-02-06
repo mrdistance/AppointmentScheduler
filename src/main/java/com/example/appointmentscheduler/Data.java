@@ -12,6 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public class Data {
      * @return the customers stored in the database
      */
     //TODO query database for list of customers matching prepared statement argument
-    public ObservableList<Customer> getCustomers(PreparedStatement ps) {return database.buildCustomers(ps);
+    public ObservableList<Customer> getCustomers(PreparedStatement ps) throws SQLException {return database.buildCustomers(ps);
     }
 
     /**
@@ -101,9 +102,12 @@ public class Data {
      */
     public ObservableList<Appointment> getAppointments(int filterLevel){
         //FIXME call build appointment method of database to build a list for further filtering or make query specific enough
-        //        to perfectly filter results and then just return those instead of having to loop through list, so converty all local
-        //        variables into uct so can direct compare to database in query
+        //        to perfectly filter results and then just return those instead of having to loop through list, all comparisons will be made
+        // in eastern time, database uct is converted when build appointments is called, local date time variables need to be converted here to eastern
+        // only for comparisons, then time needs to be converted to uct to make prepared statement and draw correct times in
         ObservableList<Appointment> appointmentList = FXCollections.observableArrayList();
+        //variables to track local date and time
+        //in local time zone and localdatetimeformat
         dateTime = LocalDateTime.now();                                         //Get the date and time of users machine
         date = dateTime.toLocalDate();
         time = dateTime.toLocalTime();
@@ -115,8 +119,11 @@ public class Data {
         int wDay = week.getValue();
 
         //TODO move loop inside each filter level or make private helper method
-        for(Appointment appointment : appointments) {                           //Look at list of appointments and compare times
-            LocalDateTime appDateTime = appointment.getStartDateTime();
+        for(Appointment appointment : database.buildAppointments()) {
+
+            //Variables to track appointment date and time, these times
+            //are returned and stored as sql uct time zone and format
+            LocalDateTime appDateTime = stringToDate(appointment);                  //get Localdatetime conversion of string date
             LocalDate appDate = appDateTime.toLocalDate();
             LocalTime appTime = appDateTime.toLocalTime();
             int appHour = appTime.getHour();
@@ -126,12 +133,21 @@ public class Data {
             DayOfWeek appWeek = appDate.getDayOfWeek();
             int appWDay = appWeek.getValue();
 
+
+
+            //before variables can be compared, need to convert local time variables to eastern time variables to
+            //match time zone stored in appointment objects which was converted by database class upon read in.
+            //need to take this conversion into account when making prepared statements and convert from eastern back
+            //to uct before updating database
+            //formatting is done in this class with private method to create localdatetime variables
+
             if (filterLevel == 0) {                                             //Display all Appointments
                 //TODO call build appointment method with prepared statement specifying all
                 appointmentList.add(appointment);
             }
             else if(filterLevel == 1){                                          //Display urgent upcoming appointments within 15 minutes of login
                 //TODO call build appointment method with prepared statement specifying same day within 15 minutes
+                // will need to convert local time zone to uct
                 //Must fall on same day
                 if(date.equals(appDate)){
                     //case 1 start same hour
@@ -146,6 +162,7 @@ public class Data {
             }
             else if (filterLevel == 2) {                                        //Display appointments for the week
                 //TODO call build appointment method with prepared statement specifying  within 7 days of same week
+                // will need to convert local time zone to uct
                 //Must fall within today and sunday--no "tuesday today , next monday appointment"
                 if(wDay <= appWDay) {
                     //case 1 same month within 7 days of today
@@ -195,7 +212,7 @@ public class Data {
         ps.setString(4, customer.getPhone());
         ps.setInt(5, customer.getDivisionId());
         int result = database.update(ps);
-        connection.close();
+        database.closeConnection();
         return result > 0 ? 1: 0;
     }
 
@@ -221,7 +238,7 @@ public class Data {
         ps.setInt(5, customer.getDivisionId());
         ps.setInt(6, customer.getCustomerId());
         int result = database.update(ps);
-        connection.close();
+        database.closeConnection();
         return result > 0 ? 1: 0;
     }
 
@@ -245,7 +262,7 @@ public class Data {
         PreparedStatement ps2 = connection.prepareStatement(query2);
         ps2.setInt(1, customer.getCustomerId());
         int result2 = database.update(ps2);
-        connection.close();
+        database.closeConnection();
         return result1 + result2 > 0 ? 1 : 0;
     }
 
@@ -263,6 +280,10 @@ public class Data {
      * @throws SQLException the exception if connection fails
      */
     public int addAppointment(Appointment appointment) throws SQLException{
+        //fixme convert from eastern back
+        // to uct before updating database
+
+
         String query = "Insert into appointments (Title, Description, Location, Type, Start, End, Customer_ID, User_ID, Contact_ID) " +
                         "Values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection connection = database.getConnection();
@@ -271,14 +292,14 @@ public class Data {
         ps.setString(2, appointment.getDescription());
         ps.setString(3, appointment.getLocation());
         ps.setString(4, appointment.getType());
-        //TODO Build private convert date method that takes local datetime and converts to sql and make sure correct set method used here
+        //TODO Build private convert date method that takes String and converts to sql and make sure correct set method used here
         ps.setDate(5, convertDateToSQL(appointment.getStartDateTime()));
         ps.setDate(6, convertDateToSQL(appointment.getEndDateTime()));
         ps.setInt(7, appointment.getCustomerId());
         ps.setInt(8, appointment.getUserId());
         ps.setInt(9, appointment.getContactId());
         int result = database.update(ps);
-        connection.close();
+        database.closeConnection();
         return result > 0 ? 1 : 0;
     }
 
@@ -299,7 +320,7 @@ public class Data {
         ps.setString(2, appointment.getDescription());
         ps.setString(3, appointment.getLocation());
         ps.setString(4, appointment.getType());
-        //TODO Build private convert date method that takes local datetime and converts to sql and make sure correct set method used here
+        //TODO Build private convert date method that takes string and converts to sql and make sure correct set method used here
         ps.setDate(5, convertDateToSQL(appointment.getStartDateTime()));
         ps.setDate(6, convertDateToSQL(appointment.getEndDateTime()));
         ps.setInt(7, appointment.getCustomerId());
@@ -307,7 +328,7 @@ public class Data {
         ps.setInt(9, appointment.getContactId());
         ps.setInt(10, appointment.getAppointmentId());
         int result = database.update(ps);
-        connection.close();
+        database.closeConnection();
         return result > 0 ? 1 : 0;
     }
 
@@ -325,8 +346,16 @@ public class Data {
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setInt(1, appointment.getAppointmentId()));
         int result = database.update(ps);
-        connection.close();
+        database.closeConnection();
         return result > 0 ? 1 : 0;
+    }
+
+    //fixme these 3 lines convert string of appointment date into local date time object
+    private LocalDateTime stringToDate(Appointment appointment){
+        String dateTimeString = appointment.getStartDateTime();         //Look at list of appointments and compare times
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss");
+        return LocalDateTime.parse(dateTimeString, formatter);
+
     }
 
     //Todo build method to convert the date to sql format
@@ -335,3 +364,9 @@ public class Data {
     }
 
 }
+
+//fixme  basically,  if you are querying the database for comparisons to build appointment arrays, convert appointment time from eastern to uct (getappointments prepared statement)
+//                   if you are comparing local and appointment time, convert local to eastern (getappointments if else)
+//                   when updating database or adding appointment, convert time from eastern to uct to store properly (update/add appointment)
+//                   when pulling from the actually database and storing in appointment objects, convert from uct to eastern (database.buildappointments)
+//                   when building hashmaps for time pickers, store as eastern, local time does not matter here and appointments are stored with eastern time

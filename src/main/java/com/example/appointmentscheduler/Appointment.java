@@ -20,8 +20,8 @@ public class Appointment {
     private String description;
     private String location;
     private String type;
-    private LocalDateTime startDateTime;                //TODO from sql will need to be converted to toLocalDateTime
-    private LocalDateTime endDateTime;
+    private String startDateTime;                //TODO from sql will need to be converted to toLocalDateTime
+    private String endDateTime;
     private int customerId;
     private int userId;
     private int contactId;
@@ -39,7 +39,7 @@ public class Appointment {
      * @param contactId the contact id to set
      */
     public Appointment(int appointmentId, String title, String description, String location, String type,
-                       LocalDateTime startDateTime, LocalDateTime endDateTime, int customerId, int userId, int contactId){
+                       String startDateTime, String endDateTime, int customerId, int userId, int contactId){
         this.appointmentId = appointmentId;
         this.title = title;
         this.description = description;
@@ -129,28 +129,28 @@ public class Appointment {
     /**
      * @return the start date and time
      */
-    public LocalDateTime getStartDateTime() {
+    public String getStartDateTime() {
         return this.startDateTime;
     }
 
     /**
      * @param startDateTime the start date and time to set
      */
-    public void setStartDateTime(LocalDateTime startDateTime) {
+    public void setStartDateTime(String startDateTime) {
         this.startDateTime = startDateTime;
     }
 
     /**
      * @return the end date and time
      */
-    public LocalDateTime getEndDateTime() {
+    public String getEndDateTime() {
         return this.endDateTime;
     }
 
     /**
      * @param endDateTime the end date and time to set
      */
-    public void setEndDateTime(LocalDateTime endDateTime) {
+    public void setEndDateTime(String endDateTime) {
         this.endDateTime = endDateTime;
     }
 
