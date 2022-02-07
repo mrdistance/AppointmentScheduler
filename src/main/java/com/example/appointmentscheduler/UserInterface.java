@@ -2,8 +2,13 @@ package com.example.appointmentscheduler;
 
 import javafx.collections.ObservableList;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 public class UserInterface {
 
@@ -15,6 +20,9 @@ public class UserInterface {
 
     //instantiate Data object once user successfully logs in
     //Data object will be running the show while the application is open behind the scenes
+
+    //This is where a private method will go to convert eastern into local for storing hashmap times in the appropriate
+    //conversion of 8-10 eastern to local
 
 
     private ArrayList<Country> countries;
@@ -33,4 +41,17 @@ public class UserInterface {
     //  when an appointment object is created it will store the time in user time, and when saved to the database it will be converted
     //  from usertime to uct time for the database
     private HashMap<String, Boolean> availableTimes;
+
+    public static void main(String[] args) {
+
+    }
+
+    private String easternToLocal(String easternString){
+        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
+        ZoneId eastZone = ZoneId.of("America/New_York");                                       //This is eastern timezone
+        LocalDateTime easternTime = LocalDateTime.parse(easternString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        ZonedDateTime easternAppointmentTime = easternTime.atZone(eastZone);
+        ZonedDateTime localAppointmentTime = easternAppointmentTime.withZoneSameInstant(localZone);
+        return localAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
 }

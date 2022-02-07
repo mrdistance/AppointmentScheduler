@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * This class provides quick validation checking of credentials input by the user and logs all login attempts
@@ -25,7 +26,7 @@ public class Login {
 
     private User user;
     private String timestamp;
-    private ZoneId zoneId;
+    private String location;
 
 
     /**
@@ -35,8 +36,8 @@ public class Login {
     public Login(){
 
         timestamp = new SimpleDateFormat("yyyy.MM.dd     HH.mm.ss").format(new Date());
-        zoneId = ZoneId.systemDefault();
-        language
+        location = TimeZone.getDefault().getID();    //Location of user
+        //fixme add computer language check functionality to translate login screen
         Database database = new Database();
     }
 
@@ -75,7 +76,7 @@ public class Login {
      * @param result the result of the login attempt (success or fail)
      */
     private void logAttempt(String result){
-        String logData = result + "     " + user.getUserName() +  "     " + timestamp +"     " + zoneId;
+        String logData = result + "     " + user.getUserName() +  "     " + timestamp +"     " + location;
         try (FileWriter writer = new FileWriter("login_activity.txt")){
             writer.append(logData);         //Write to file
         }catch (IOException ioe){

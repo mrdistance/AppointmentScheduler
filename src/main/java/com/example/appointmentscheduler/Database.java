@@ -4,9 +4,16 @@ import java.sql.*;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * This class provided our basis for interaction with the database.  The methods receive prepared statements as parameters
@@ -25,14 +32,14 @@ public class Database {
 
 
     //TODO add variables for database, these are a test, copied from jdbc helper
-    private static final String protocol = "jdbc";
-    private static final String vendor = ":mysql:";
-    private static final String location = "//localhost/";
-    private static final String databaseName = "client_schedule";
-    private static final String jdbcUrl = protocol + vendor + location + databaseName + "?connectionTimeZone = SERVER"; // LOCAL
-    private static final String driver = "com.mysql.cj.jdbc.Driver"; // Driver reference
-    private static final String userName = "root"; // my pc Username
-    private static String password = "Them@1lman12."; // my pc Password
+    private final String protocol = "jdbc";
+    private final String vendor = ":mysql:";
+    private final String location = "//localhost/";
+    private final String databaseName = "client_schedule";
+    private final String jdbcUrl = protocol + vendor + location + databaseName + "?connectionTimeZone = SERVER"; // LOCAL
+    private final String driver = "com.mysql.cj.jdbc.Driver"; // Driver reference
+    private final String userName = "root"; // my pc Username
+    private String password = "Them@1lman12."; // my pc Password
     //private static final String userName = "sqlUser"; // vm Username
     //private static String password = "Passw0rd!"; // vm Password
     private Connection connection;  // Connection Interface
@@ -136,17 +143,6 @@ public class Database {
     }
 
     public ObservableList<Appointment> buildAppointments(PreparedStatement ps) throws SQLException{
-        //FIXME use private query method and pass ps
-        //  Conduct sql datetime to java localdatetime conversion here -- private helper method
-        //  Time needs to be converted into localdatetime for java, then compared to eastern time est for offic hours of business location
-        //  Then changed into UTC to store in database,  Easiest to convert localDateTime to eastern time and database time to eastern time and do all
-        //  comparisons on eastern time?  To store in application while user logged in need to display in localdatetime, but compare in eastern time.
-        //  Eastern time is defined for business hours of 8am to 10pm,  Only need to convert those parameters to local time so that appointments set by
-        //  User fall within specified hours, so only during appointment scheduling, can store everything else as localdatetime while in use/display until storing
-        //  In database.  So convert from UTC of database into localdatetime,  Then for scheduling and updating appointments only display the correct
-        //  conversion of eastern time to local time as options for available slots.
-        //  Query Appointments table for id, name, address, postal code, phone, and division id
-        //  Loop through Rows in Appointment table and build list
 
         ObservableList<Appointment> appointments= FXCollections.observableArrayList();
         ResultSet result = query(ps);
@@ -162,11 +158,10 @@ public class Database {
             int userId = result.getInt(13);
             int contactId = result.getInt(14);
 
-            //fixme need to convert start and end into eastern and string format for user appointment object from sql uct time
-            //  sql = yyyy-MM-dd HH-mm-ss   store user as sql format string for
-            //  easy save to database but convert time zones so all data the user recieves is the correct conversion of
-            // time zones from uct to eastern because office is eastern time all appointments must be between 8 and 10 eastern
-            Appointment appointment = new Appointment(id, title, desc, location, type, start, end, customerId, userId, contactId);
+            String localStart = utcToLocal(start);
+            String localEnd = utcToLocal(end);
+
+            Appointment appointment = new Appointment(id, title, desc, location, type, localStart, localEnd, customerId, userId, contactId);
             appointments.add(appointment);
 
         }
@@ -194,8 +189,13 @@ public class Database {
 
 
     //TODO convert anything dealing with times to localdatetime before building that object, only needs to be used in appointments?
-    private LocalDateTime sqlToJavaTime(){
-        
+    private String utcToLocal(String utcString){
+        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
+        ZoneId utcZone = ZoneId.of("UTC");                                       //This is db timezone
+        LocalDateTime dbTime = LocalDateTime.parse(utcString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        ZonedDateTime utcAppointmentTime = dbTime.atZone(utcZone);
+        ZonedDateTime localAppointmentTime = utcAppointmentTime.withZoneSameInstant(localZone);
+        return localAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
 

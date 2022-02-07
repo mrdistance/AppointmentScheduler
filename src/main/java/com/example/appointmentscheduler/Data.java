@@ -8,13 +8,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * This class provides methods to retrieve and send data to and from the database.  Each method takes a prepared statment
@@ -140,6 +138,9 @@ public class Data {
             //need to take this conversion into account when making prepared statements and convert from eastern back
             //to uct before updating database
             //formatting is done in this class with private method to create localdatetime variables
+            //System.out.println(dbTime.isAfter(estTime));
+            //System.out.println(date.isEqual(dbTime.toLocalDate()));             //check if same day
+            // System.out.println(time.isBefore(estTime.toLocalTime()));
 
             if (filterLevel == 0) {                                             //Display all Appointments
                 //TODO call build appointment method with prepared statement specifying all
@@ -280,10 +281,6 @@ public class Data {
      * @throws SQLException the exception if connection fails
      */
     public int addAppointment(Appointment appointment) throws SQLException{
-        //fixme convert from eastern back
-        // to uct before updating database
-
-
         String query = "Insert into appointments (Title, Description, Location, Type, Start, End, Customer_ID, User_ID, Contact_ID) " +
                         "Values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection connection = database.getConnection();
@@ -292,9 +289,8 @@ public class Data {
         ps.setString(2, appointment.getDescription());
         ps.setString(3, appointment.getLocation());
         ps.setString(4, appointment.getType());
-        //TODO Build private convert date method that takes String and converts to sql and make sure correct set method used here
-        ps.setDate(5, convertDateToSQL(appointment.getStartDateTime()));
-        ps.setDate(6, convertDateToSQL(appointment.getEndDateTime()));
+        ps.setString(5, localToUTC(appointment.getStartDateTime()));
+        ps.setString(6, localToUTC(appointment.getEndDateTime()));
         ps.setInt(7, appointment.getCustomerId());
         ps.setInt(8, appointment.getUserId());
         ps.setInt(9, appointment.getContactId());
@@ -320,9 +316,8 @@ public class Data {
         ps.setString(2, appointment.getDescription());
         ps.setString(3, appointment.getLocation());
         ps.setString(4, appointment.getType());
-        //TODO Build private convert date method that takes string and converts to sql and make sure correct set method used here
-        ps.setDate(5, convertDateToSQL(appointment.getStartDateTime()));
-        ps.setDate(6, convertDateToSQL(appointment.getEndDateTime()));
+        ps.setString(5, localToUTC(appointment.getStartDateTime()));
+        ps.setString(6, localToUTC(appointment.getEndDateTime()));
         ps.setInt(7, appointment.getCustomerId());
         ps.setInt(8, appointment.getUserId());
         ps.setInt(9, appointment.getContactId());
@@ -350,17 +345,33 @@ public class Data {
         return result > 0 ? 1 : 0;
     }
 
-    //fixme these 3 lines convert string of appointment date into local date time object
+    /**
+     * This method takes in a string time in the users time zone, converts it to utc time zone, then converts it to a
+     * LocalDateTime object for comparisons of appointments times  (getAppointments method)
+     *
+     * @param appointment the appointment to compare with
+     * @return the date and time of the appointment as a LocalDateTime object
+     */
     private LocalDateTime stringToDate(Appointment appointment){
-        String dateTimeString = appointment.getStartDateTime();         //Look at list of appointments and compare times
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss");
+        String dateTimeString = localToUTC(appointment.getStartDateTime());         //Look at list of appointments and compare times
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return LocalDateTime.parse(dateTimeString, formatter);
 
     }
 
-    //Todo build method to convert the date to sql format
-    private String convertDateToSQL(String localDate){
-        return "";
+    /**
+     * This method takes a string time in the users time zone and converts it into a string in the utc time zone
+     *
+     * @param localString the string to convert
+     * @return the converted string
+     */
+    private String localToUTC(String localString){
+        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
+        ZoneId utcZone = ZoneId.of("UTC");                                       //This is db timezone
+        LocalDateTime localTime = LocalDateTime.parse(localString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        ZonedDateTime localAppointmentTime = localTime.atZone(localZone);
+        ZonedDateTime utcAppointmentTime = localAppointmentTime.withZoneSameInstant(utcZone);
+        return utcAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
 }
