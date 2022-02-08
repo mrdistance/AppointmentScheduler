@@ -4,15 +4,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * This class provides methods to retrieve and send data to and from the database.  Each method takes a prepared statment
@@ -49,38 +50,110 @@ public class Data {
     }
 
 
-    //============================================Data Getter Methods============================================
+    //=====================================Location Getter Methods======================================================
 
     /**
+     * This method queries the database and returns an observable list of all the countries
+     *
      * @return the countries stored in the database
      */
-    //TODO query database for list of countries matching prepared statement argument
-    public ArrayList<Country> getCountries(PreparedStatement ps){
-        return database.buildCountries(ps);
+
+    public ObservableList<Country> getCountries() throws SQLException{
+        String query = "Select * from countries";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ObservableList<Country> countries =  database.buildCountries(ps);
+        database.closeConnection();
+        return countries;
     }
 
     /**
-     * @return the first level divisions stored in the database
+     * This method queries the database and returns an observable list of all the divisions that pertain
+     * to the specified country
+     *
+     * @param country the country to match divisions to
+     * @return the first level divisions stored in the database that are a match
      */
-    //TODO query database for list of divisions matching prepared statement argument
-    public ArrayList<FirstLevelDivision> getDivisions(PreparedStatement ps){
-        return database.buildDivisions(ps);
+    public ObservableList<FirstLevelDivision> getDivisions(Country country) throws SQLException{
+        String query = "Select * from first_level_divisions where country_id = ?";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setInt(1, country.getCountryId());
+        ObservableList<FirstLevelDivision> divisions = database.buildDivisions(ps);
+        database.closeConnection();
+        return divisions;
+    }
+
+
+    //============================================Login Validation======================================================
+
+    /**
+     * This method determines if the username and password a user has entered are valid
+     *
+     * @param userName the username taken from the login form
+     * @param password the password taken from the login form
+     * @return a valid user or null
+     */
+    public User login(String userName, String password) throws SQLException{
+        User user = getUser(userName);
+        if(user != null){                                   //Username is valid and exists
+            if(password.equals(user.getPassword())){        //Password is valid and matches username
+                logAttempt("SUCCESS", userName);
+                return user;
+            }
+        }
+        logAttempt("FAIL   ", userName);
+        return null;
     }
 
     /**
+     * This method logs successes/failures logging into the application to the file login_activity.txt
+     *
+     * @param result the result of the login attempt (success or fail)
+     * @param userName the username taken from the login form
+     */
+    private void logAttempt(String result, String userName){
+        String timestamp = new SimpleDateFormat("yyyy.MM.dd     HH.mm.ss").format(new Date());
+        String location = TimeZone.getDefault().getID();    //Location of user
+        String logData = result + "     " + userName +  "     " + timestamp +"     " + location;
+        try (FileWriter writer = new FileWriter("login_activity.txt")){
+            writer.append(logData);         //Write to file
+        }catch (IOException ioe){
+            System.out.println("Error loading file \"login_activity.txt\"");
+        }
+    }
+
+    //=============================================Data Getter Methods==================================================
+
+    /**
+     * This method checks to see if there is a user in the database that matches the username entered on
+     * the login form
+     *
+     * @param username the username taken from the login form
      * @return the users stored in the dabase
      */
     //TODO query database for list of users matching prepared statement argument
-    public ArrayList<User> getUsers(PreparedStatement ps){
-        return database.buildUsers(ps);
+    private User getUser(String username) throws SQLException{
+        String query = "Select * from users where User_Name = ?";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setString(1, username);
+        User user = database.buildUser(ps);
+        database.closeConnection();
+        return user;
     }
 
     /**
      * @return the contacts stored in the database
      */
     //TODO query database for list of contacts matching prepared statement argument
-    public ArrayList<Contact> getContacts(PreparedStatement ps){
-        return database.buildContacts(ps);
+    public ObservableList<Contact> getContacts() throws SQLException{
+        String query = "Select * from contacts";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ObservableList<Contact> contacts = database.buildContacts(ps);
+        database.closeConnection();
+        return contacts;
     }
 
     /**
@@ -98,7 +171,41 @@ public class Data {
      * @param filterLevel the desired level of filtering for appointments(0: All, 1: Within 15 Minutes, 2: This week, 3: This month)
      * @return A list holding the filtered appointments
      */
-    public ObservableList<Appointment> getAppointments(int filterLevel){
+
+    //todo appointments must be sorted in ascending order based on start time
+    public ObservableList<Appointment> getAppointments(int filterLevel) throws SQLException{
+        String query = "";
+        //Case One, get all appointments
+        if(filterLevel == 0) {
+            query = "select * from appointments order by start asc";
+        }
+        //Case Two, get appointments for month
+        else if(filterLevel == 1) {
+        }
+        //Case Three, get appointments for week
+        else if(filterLevel == 2) {
+        }
+        //Case Four, get appointments for day
+        else if(filterLevel == 3) {
+            query = "select * from appointments where start >= ? order by start asc";
+            dateTime = LocalDateTime.now();
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(dateTime);
+        }
+        //Case Five, get appointments within 15 minutes of login
+        else { //filterLevel == 4
+        }
+
+
+
+
+
+
+
+
+
+
         //FIXME call build appointment method of database to build a list for further filtering or make query specific enough
         //        to perfectly filter results and then just return those instead of having to loop through list, all comparisons will be made
         // in eastern time, database uct is converted when build appointments is called, local date time variables need to be converted here to eastern
@@ -141,6 +248,7 @@ public class Data {
             //System.out.println(dbTime.isAfter(estTime));
             //System.out.println(date.isEqual(dbTime.toLocalDate()));             //check if same day
             // System.out.println(time.isBefore(estTime.toLocalTime()));
+
 
             if (filterLevel == 0) {                                             //Display all Appointments
                 //TODO call build appointment method with prepared statement specifying all
@@ -186,13 +294,107 @@ public class Data {
         return appointmentList;
     }
 
+    //todo make method to get end times
+
+    /**
+     * This method builds an observable list representing all available start time slots for the day
+     *
+     * @return list of available start times
+     * @throws SQLException the exception if connection fails
+     */
+    public ObservableList<String> getStartTimes() throws SQLException{
+        ObservableList<Appointment> todaysAppointments = getAppointments(3);
+        ObservableList<String> availableTimes = FXCollections.observableArrayList();                   //build a list to hold open time slots
+        String today = dateAsString(todaysAppointments.get(0).getStartDateTime());
+        int i = 0;
+        int availableTime = 480;
+
+        for(Appointment appointment : todaysAppointments) {
+            int easternTimeConverted = getTimeAsInt(easternToLocal(today + " " + convertIntToTime(availableTime)));
+            int takenTime = getTimeAsInt(appointment.getStartDateTime());
+            int duration = getAppointmentDurationAsInt(appointment);
+            //Time slot available
+            if (!(easternTimeConverted == takenTime)) {
+                availableTimes.add(convertIntToTime(easternTimeConverted));
+            }
+            //Time slot taken, advance until get to appointment end time
+            else {
+                while (duration > 0) {
+                    availableTime += 15;
+                    duration -= 15;
+                }
+            }
+        }
+        return availableTimes;
+    }
+
+    /**
+     * This method returns just the date portion of a string date time
+     *
+     * @param date the date to extract from
+     * @return the date portion of the date string
+     */
+    private String dateAsString(String date){
+        String[] parts = date.split("T");
+        return parts[0];
+    }
+
+    /**
+     * This method takes in the number of minutes that have passed in a day as an integer and converts it back to
+     * a string representation of the time of day
+     *
+     * @param timeInMinutes the time of day in minutes
+     * @return the time of day as a string
+     */
+    private String convertIntToTime(int timeInMinutes){
+        int hours = timeInMinutes % 60;
+        int minutes = timeInMinutes - (hours * 60);
+        String hoursString = hours < 10 ? "0" + hours : String.valueOf(hours);
+        String minutesString = minutes == 0 ? "00" : String.valueOf(minutes);
+        return hoursString + ":" + minutesString + ":00";
+    }
+
+    /**
+     * This method takes in a string date and returns the time of day represented as minutes from 00
+     *
+     * @param date the string from which to retrieve the minutes
+     * @return the total number of minutes into the day represented by the string
+     */
+    private int getTimeAsInt(String date){
+        String[] dateParts = date.split("T");
+        String time = dateParts[1];
+        String[] timeParts = time.split(":");
+        int hours = Integer.parseInt(timeParts[0]);
+        int minutes = Integer.parseInt(timeParts[1]);
+        return hours * 60 + minutes;
+
+    }
+
+    /**
+     * This method takes an appointment and determines how long it will last in minutes
+     *
+     * @param appointment the appointment to examine
+     * @return the length of the appointment in minutes
+     */
+    private int getAppointmentDurationAsInt(Appointment appointment){
+        int startTotalMinutes = getTimeAsInt(appointment.getStartDateTime());
+        int endTotalMinutes = getTimeAsInt(appointment.getEndDateTime());
+        return endTotalMinutes - startTotalMinutes;
+    }
+
+    //TODO build 3 separate Prepared statements based on which report you want to build  to be passed to database.buildReport()
+    //  which will return a list back up that we can return and pass to a text area object line by line to display the report
     public List<String> getReport(int reportNumber){
-        //TODO build 3 separate Prepared statements based on which report you want to build  to be passed to database.buildReport()
-        //  which will return a list back up that we can return and pass to a text area object line by line to display the report
+        //Report 1, total number of customer appointments by type and month
+
+        //Report 2, schedule for each contact in organization
+
+        //Report 3, total customers per country and division
+
+        return null;
     }
 
     //===========================================Customer Manipulation Methods==========================================
-
 
     /**
      * This method opens a connection to the database, composes a prepared statement to insert the specified customer,
@@ -269,9 +471,6 @@ public class Data {
 
     //========================================Appointment Manipulation Methods==========================================
 
-    //TODO have these methods return a prepared statemtent specifying what to do and passing to database insert, update, or delete method
-    //  they also have to do time formatting
-
     /**
      * This method opens a connection to the database, composes a prepared statement to add the specified appointment,
      * then closes the connection
@@ -345,6 +544,8 @@ public class Data {
         return result > 0 ? 1 : 0;
     }
 
+    //==========================================String Manipulation Methods=============================================
+
     /**
      * This method takes in a string time in the users time zone, converts it to utc time zone, then converts it to a
      * LocalDateTime object for comparisons of appointments times  (getAppointments method)
@@ -353,7 +554,7 @@ public class Data {
      * @return the date and time of the appointment as a LocalDateTime object
      */
     private LocalDateTime stringToDate(Appointment appointment){
-        String dateTimeString = localToUTC(appointment.getStartDateTime());         //Look at list of appointments and compare times
+        String dateTimeString = localToUTC(appointment.getStartDateTime());         //Look at list of appointments and compare times in database prepared statement for getappointment
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return LocalDateTime.parse(dateTimeString, formatter);
 
@@ -366,7 +567,7 @@ public class Data {
      * @return the converted string
      */
     private String localToUTC(String localString){
-        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
+        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());             //"This gets local timezone
         ZoneId utcZone = ZoneId.of("UTC");                                       //This is db timezone
         LocalDateTime localTime = LocalDateTime.parse(localString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         ZonedDateTime localAppointmentTime = localTime.atZone(localZone);
@@ -374,10 +575,21 @@ public class Data {
         return utcAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
+    /**
+     * This method takes a string time in eastern time zone from 8AM to 10PM
+     * and converts it into a string in the user's time zone to see if the time is available or taken
+     *
+     * @param easternString the string to convert
+     * @return the converted string
+     */
+    private String easternToLocal(String easternString){
+        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());                            //"This gets local timezone
+        ZoneId eastZone = ZoneId.of("America/New_York");                                        //This is eastern timezone
+        LocalDateTime easternTime = LocalDateTime.parse(easternString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        ZonedDateTime easternAppointmentTime = easternTime.atZone(eastZone);
+        ZonedDateTime localAppointmentTime = easternAppointmentTime.withZoneSameInstant(localZone);
+        return localAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
 }
 
-//fixme  basically,  if you are querying the database for comparisons to build appointment arrays, convert appointment time from eastern to uct (getappointments prepared statement)
-//                   if you are comparing local and appointment time, convert local to eastern (getappointments if else)
-//                   when updating database or adding appointment, convert time from eastern to uct to store properly (update/add appointment)
-//                   when pulling from the actually database and storing in appointment objects, convert from uct to eastern (database.buildappointments)
-//                   when building hashmaps for time pickers, store as eastern, local time does not matter here and appointments are stored with eastern time

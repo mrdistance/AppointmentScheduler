@@ -1,16 +1,27 @@
 package com.example.appointmentscheduler;
 
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class UserInterface {
+import java.io.IOException;
+
+public class UserInterface extends Application{
 
     //Add main method, start method, some sort of loading message should be displayed until all data built
 
@@ -22,7 +33,8 @@ public class UserInterface {
     //Data object will be running the show while the application is open behind the scenes
 
     //This is where a private method will go to convert eastern into local for storing hashmap times in the appropriate
-    //conversion of 8-10 eastern to local
+    //conversion of 8-10 eastern to local.  so put hashmap times as 8:00, 8:15, etc,  but call easterntolocal method on them
+    //before displaying in the gui
 
 
     private ArrayList<Country> countries;
@@ -31,27 +43,42 @@ public class UserInterface {
     private ArrayList<Contact> contacts;
     private ObservableList<Customer> customers;
     private ObservableList<Appointment> appointments;
+    private User user;
+    private Data data;
 
+    public UserInterface(){
+        user = null;
+        data = new Data();
+    }
 
-    //TODO create datepicker to get date from user, create 1 hashmap to get date chosen and display list of available start times for that day,
-    //  Key == intervals every 15 minutes of working day converted from eastern time to user time, Value == true or false whether available
-    //  or not.  create 1 hashmap to get start time from first map, and closest next appointment start time from calender, and display
-    //  list of available end times that must fall between those two times so all other keys in map that don't fall within those can be
-    //  set to false. all available times need to be converted from eastern time to usertime before displayed and saved, then
-    //  when an appointment object is created it will store the time in user time, and when saved to the database it will be converted
-    //  from usertime to uct time for the database
-    private HashMap<String, Boolean> availableTimes;
+    //login button.onclick  User user = data.login(usernameTF.getText(), passwordTF.getText());
+    //if user == null, error message, clear password field
+    //else move to next screen and save user info
+
+    //todo make sure translates all login page text : (do for all pages?, en spanish and french?) label.setText(translate(fieldname);
+    public String translate(String fieldName){
+        //Locale.setDefault(new Locale("fr"));
+        ResourceBundle rb = ResourceBundle.getBundle("language_files/rb");
+        return rb.getString(fieldName);
+    }
+
+    public void launch(){
+        launch();
+    }
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        stage.setTitle("Hello!");
+        stage.setScene(scene);
+        stage.show();
+
+    }
 
     public static void main(String[] args) {
-
+        launch();
     }
+}
 
-    private String easternToLocal(String easternString){
-        ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
-        ZoneId eastZone = ZoneId.of("America/New_York");                                       //This is eastern timezone
-        LocalDateTime easternTime = LocalDateTime.parse(easternString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        ZonedDateTime easternAppointmentTime = easternTime.atZone(eastZone);
-        ZonedDateTime localAppointmentTime = easternAppointmentTime.withZoneSameInstant(localZone);
-        return localAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
+
 }

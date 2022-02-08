@@ -52,6 +52,11 @@ public class Database {
 
     //========================================Connection Methods========================================================
 
+    /**
+     * This method establishes a connection with the database
+     *
+     * @return the connection that was established
+     */
     public Connection getConnection(){
         try {
             Class.forName(driver); // Locate Driver
@@ -66,6 +71,9 @@ public class Database {
         return this.connection;
     }
 
+    /**
+     * This method closes the connection with the database
+     */
     public void closeConnection() {
         try {
             connection.close();
@@ -77,55 +85,92 @@ public class Database {
         }
     }
 
-    //===================================Database Interaction Methods===================================================
+    //===========================================Data Building Methods===================================================
 
-
-
-    public ArrayList<Country> buildCountries(PreparedStatement ps){
-        //FIXME query will get data in db this method will convert to correct format and object/s for local use
-        //  user private query method
-        //  Query Countries table for id and name
-        //  Loop through Rows in Country table and build list
-        int id;
-        String name;
-        Country country = new Country(id, name);
-        countries.add(country);
+    /**
+     * This method pulls countries from the database and builds them into an observable list
+     *
+     * @param ps the prepared statement to specify which countries to pull
+     * @return the list of countries pulled from the database
+     * @throws SQLException the exception if connection fails
+     */
+    public ObservableList<Country> buildCountries(PreparedStatement ps) throws SQLException{
+        ObservableList<Country> countries = FXCollections.observableArrayList();
+        ResultSet result = query(ps);
+        while(result.next()){
+            int id = result.getInt(1);
+            String name = result.getString(2);
+            Country country = new Country(id, name);
+            countries.add(country);
+        }
+        return countries;
     }
 
-    public ArrayList<FirstLevelDivision> buildDivisions(PreparedStatement ps){
-        //TODO use private query method
-        //Query Divisions table for id, name, and country id
-        //Loop through Rows in Division table and build list
-        int id;
-        String name;
-        int countryId;
-        FirstLevelDivision division = new FirstLevelDivision(id, name, countryId);
-        divisions.add(division);
+    /**
+     * This method pulls divisions from the database and builds them into an observable list
+     *
+     * @param ps the prepared statement to specify which divisions to pull
+     * @return the list of divisions pulled from the database
+     * @throws SQLException the exception if connection fails
+     */
+    public ObservableList<FirstLevelDivision> buildDivisions(PreparedStatement ps) throws SQLException{
+        ObservableList<FirstLevelDivision> divisions = FXCollections.observableArrayList();
+        ResultSet result = query(ps);
+        while(result.next()) {
+            int id = result.getInt(1);
+            String name = result.getString(2);
+            int cId = result.getInt(7);
+            FirstLevelDivision division = new FirstLevelDivision(id, name, cId);
+            divisions.add(division);
+        }
+        return divisions;
     }
 
-    public ArrayList<User> buildUsers(PreparedStatement ps){
-        //FIXME user private query method
-        //  Query Users table for id, name, and password
-        //  Loop through Rows in Users table and build list
-        int id;
-        String name;
-        String password;
-        User user = new User(id, name, password);
-        users.add(user);
+    /**
+     * This method pulls the corresponding user from the database to validate credentials and track logged-in user
+     *
+     * @param ps the prepared statement to specify which user to look for
+     * @return the user if found or null
+     * @throws SQLException the exception if connection fails
+     */
+    public User buildUser(PreparedStatement ps) throws SQLException{
+        ResultSet result = query(ps);
+        if(!result.next()){
+            return null;
+        }
+        int id = result.getInt(1);
+        String name = result.getString(2);
+        String password = result.getString(3);
+        return new User(id, name, password);
     }
 
-    public ArrayList<Contact> buildContacts(PreparedStatement ps){
-        //FIXME use private query method
-        //  Query Contacts table for id and name
-        //  Loop through Rows in Contacts table and build list
-        int id;
-        String name;
-        Contact contact = new Contact(id, name);
-        contacts.add(contact);
+    /**
+     * This method pulls contacts from the database and builds them into an observable list
+     *
+     * @param ps the prepared statement to specify which contacts to pull
+     * @return the list of contacts pulled from the database
+     * @throws SQLException the exception if connection fails
+     */
+    public ObservableList<Contact> buildContacts(PreparedStatement ps) throws SQLException{
+        ObservableList<Contact> contacts = FXCollections.observableArrayList();
+        ResultSet result = query(ps);
+        while(result.next()){
+            int id = result.getInt(1);
+            String name = result.getString(2);
+            Contact contact = new Contact(id, name);
+            contacts.add(contact);
+        }
+        return contacts;
     }
 
+    /**
+     * This method pulls customers from the database and builds them into an observable list
+     *
+     * @param ps the prepared statement to specify which customers to pull
+     * @return the list of customers pulled from the databse
+     * @throws SQLException the exception if the connection fails
+     */
     public ObservableList<Customer> buildCustomers(PreparedStatement ps) throws SQLException{
-
         ObservableList<Customer> customers = FXCollections.observableArrayList();
         ResultSet result = query(ps);
         while(result.next()){
@@ -137,11 +182,17 @@ public class Database {
             int divisionId = result.getInt(10);
             Customer customer = new Customer(id, name, address, postalCode, phone, divisionId);
             customers.add(customer);
-
         }
        return customers;
     }
 
+    /**
+     * This method pulls appointments from the database and builds them into an observable list
+     *
+     * @param ps the prepared statement to specify which appointments to pull
+     * @return the list of appointments pulled from the database
+     * @throws SQLException the exception if the connection fails
+     */
     public ObservableList<Appointment> buildAppointments(PreparedStatement ps) throws SQLException{
 
         ObservableList<Appointment> appointments= FXCollections.observableArrayList();
@@ -169,26 +220,27 @@ public class Database {
     }
 
     /**
-     * This method takes a prepared statement and inserts, updates, or deletes items in the database, returns a number
-     * based on how many rows were affected
+     * This method pulls data from the database and builds a report to be displayed in the GUI
      *
-     * @param ps the prepared statement for the query
-     * @return the number of rows affected
+     * @param ps the prepared statement specifying which data to pull from the database
+     * @return a list of strings of the data for easy display
      * @throws SQLException the exception if the connection fails
      */
-    public int update(PreparedStatement ps) throws SQLException{
-        return ps.executeUpdate();
-    }
-
-
     //TODO based on report number have specific prepared statement passed to private query method, that formats the returned
     //  data into a list to be passed back to the calling method
-    public List<String> buildReport(PreparedStatement ps){
-        this.query(ps)
+    public List<String> buildReport(PreparedStatement ps) throws SQLException{
+        this.query(ps);
+        return null;
     }
 
+    //=============================================Time Conversion Method===============================================
 
-    //TODO convert anything dealing with times to localdatetime before building that object, only needs to be used in appointments?
+    /**
+     * This method converts the times taken from the database into local time before building appointment objects
+     *
+     * @param utcString the time string in database time
+     * @return the time string in local time
+     */
     private String utcToLocal(String utcString){
         ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
         ZoneId utcZone = ZoneId.of("UTC");                                       //This is db timezone
@@ -198,6 +250,7 @@ public class Database {
         return localAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
+    //===========================================Query Execution Methods================================================
 
     /**
      * This method takes a prepared statement and executes a query to the database then returns a result set
@@ -209,6 +262,18 @@ public class Database {
      */
     private ResultSet query(PreparedStatement ps) throws SQLException{
         return ps.executeQuery();
+    }
+
+    /**
+     * This method takes a prepared statement and inserts, updates, or deletes items in the database, returns a number
+     * based on how many rows were affected
+     *
+     * @param ps the prepared statement for the query
+     * @return the number of rows affected
+     * @throws SQLException the exception if the connection fails
+     */
+    public int update(PreparedStatement ps) throws SQLException{
+        return ps.executeUpdate();
     }
 
 
