@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -32,20 +31,12 @@ public class Data {
 
     //Bring in Database to build Data
     private Database database;
-
-
     //Track current date and time of user
     private LocalDateTime dateTime;
-    private LocalDate date;
-    private LocalTime time;
 
     public Data(){
         //Initialize variables
         dateTime = LocalDateTime.now();
-
-
-
-        //Connect to the database and build objects
         database = new Database();
     }
 
@@ -83,7 +74,6 @@ public class Data {
         database.closeConnection();
         return divisions;
     }
-
 
     //============================================Login Validation======================================================
 
@@ -130,9 +120,8 @@ public class Data {
      * the login form
      *
      * @param username the username taken from the login form
-     * @return the users stored in the dabase
+     * @return the user stored in the database
      */
-    //TODO query database for list of users matching prepared statement argument
     private User getUser(String username) throws SQLException{
         String query = "Select * from users where User_Name = ?";
         Connection connection = database.getConnection();
@@ -144,9 +133,10 @@ public class Data {
     }
 
     /**
+     * This method queries the database and returns an Observable list of all the contacts in it
+     *
      * @return the contacts stored in the database
      */
-    //TODO query database for list of contacts matching prepared statement argument
     public ObservableList<Contact> getContacts() throws SQLException{
         String query = "Select * from contacts";
         Connection connection = database.getConnection();
@@ -157,186 +147,245 @@ public class Data {
     }
 
     /**
+     * This method queries the database and returns an observable list of all the customers in it
+     *
      * @return the customers stored in the database
      */
-    //TODO query database for list of customers matching prepared statement argument
-    public ObservableList<Customer> getCustomers(PreparedStatement ps) throws SQLException {return database.buildCustomers(ps);
+    public ObservableList<Customer> getCustomers() throws SQLException {
+        String query = "Select * from customers";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ObservableList<Customer> customers = database.buildCustomers(ps);
+        database.closeConnection();
+        return customers;
     }
 
     /**
      * This method has been designed to allow the user to filter all the appointments and display the ones that
-     * fall within the current week or month.  It also allows for easy access to all appointments for display tables as
+     * fall within the current day, week, or month.  It also allows for easy access to all appointments for display tables as
      * well as appointments that will occur within 15 minutes of user login.
      *
-     * @param filterLevel the desired level of filtering for appointments(0: All, 1: Within 15 Minutes, 2: This week, 3: This month)
+     * @param filterLevel the desired level of filtering for appointments(0: All, 1: This month, 2: This week, 3: Today, 4: 15 minutes)
      * @return A list holding the filtered appointments
      */
-
-    //todo appointments must be sorted in ascending order based on start time
     public ObservableList<Appointment> getAppointments(int filterLevel) throws SQLException{
-        String query = "";
-        //Case One, get all appointments
-        if(filterLevel == 0) {
-            query = "select * from appointments order by start asc";
-        }
-        //Case Two, get appointments for month
-        else if(filterLevel == 1) {
-        }
-        //Case Three, get appointments for week
-        else if(filterLevel == 2) {
-        }
-        //Case Four, get appointments for day
-        else if(filterLevel == 3) {
-            query = "select * from appointments where start >= ? order by start asc";
-            dateTime = LocalDateTime.now();
-            Connection connection = database.getConnection();
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(dateTime);
-        }
-        //Case Five, get appointments within 15 minutes of login
-        else { //filterLevel == 4
-        }
-
-
-
-
-
-
-
-
-
-
-        //FIXME call build appointment method of database to build a list for further filtering or make query specific enough
-        //        to perfectly filter results and then just return those instead of having to loop through list, all comparisons will be made
-        // in eastern time, database uct is converted when build appointments is called, local date time variables need to be converted here to eastern
-        // only for comparisons, then time needs to be converted to uct to make prepared statement and draw correct times in
-        ObservableList<Appointment> appointmentList = FXCollections.observableArrayList();
-        //variables to track local date and time
-        //in local time zone and localdatetimeformat
+        ObservableList<Appointment> appointments = FXCollections.observableArrayList();
         dateTime = LocalDateTime.now();                                         //Get the date and time of users machine
-        date = dateTime.toLocalDate();
-        time = dateTime.toLocalTime();
+        LocalDate date = dateTime.toLocalDate();
+        LocalTime time = dateTime.toLocalTime();
         int hour = time.getHour();
         int minute = time.getMinute();
+        int year = date.getYear();
         int month = date.getMonthValue();
         int day = date.getDayOfMonth();
         DayOfWeek week = date.getDayOfWeek();
         int wDay = week.getValue();
+        int numDaysThisMonth = date.lengthOfMonth();
 
-        //TODO move loop inside each filter level or make private helper method
-        for(Appointment appointment : database.buildAppointments()) {
-
-            //Variables to track appointment date and time, these times
-            //are returned and stored as sql uct time zone and format
-            LocalDateTime appDateTime = stringToDate(appointment);                  //get Localdatetime conversion of string date
-            LocalDate appDate = appDateTime.toLocalDate();
-            LocalTime appTime = appDateTime.toLocalTime();
-            int appHour = appTime.getHour();
-            int appMinute = appTime.getMinute();
-            int appMonth = appDate.getMonthValue();
-            int appDay = appDate.getDayOfMonth();
-            DayOfWeek appWeek = appDate.getDayOfWeek();
-            int appWDay = appWeek.getValue();
-
-
-
-            //before variables can be compared, need to convert local time variables to eastern time variables to
-            //match time zone stored in appointment objects which was converted by database class upon read in.
-            //need to take this conversion into account when making prepared statements and convert from eastern back
-            //to uct before updating database
-            //formatting is done in this class with private method to create localdatetime variables
-            //System.out.println(dbTime.isAfter(estTime));
-            //System.out.println(date.isEqual(dbTime.toLocalDate()));             //check if same day
-            // System.out.println(time.isBefore(estTime.toLocalTime()));
-
-
-            if (filterLevel == 0) {                                             //Display all Appointments
-                //TODO call build appointment method with prepared statement specifying all
-                appointmentList.add(appointment);
-            }
-            else if(filterLevel == 1){                                          //Display urgent upcoming appointments within 15 minutes of login
-                //TODO call build appointment method with prepared statement specifying same day within 15 minutes
-                // will need to convert local time zone to uct
-                //Must fall on same day
-                if(date.equals(appDate)){
-                    //case 1 start same hour
-                    if(appHour == hour && (appMinute >= minute && appMinute <= minute + 15)){
-                        appointmentList.add(appointment);
-                    }
-                    //case 2 start beginning of next hour
-                    else if(appHour == hour + 1 && (60 + appMinute - minute <= 15)){
-                        appointmentList.add(appointment);
-                    }
-                }
-            }
-            else if (filterLevel == 2) {                                        //Display appointments for the week
-                //TODO call build appointment method with prepared statement specifying  within 7 days of same week
-                // will need to convert local time zone to uct
-                //Must fall within today and sunday--no "tuesday today , next monday appointment"
-                if(wDay <= appWDay) {
-                    //case 1 same month within 7 days of today
-                    if (appMonth == month && (appDay >= day && appDay < day + 7)) {
-                        appointmentList.add(appointment);
-                    }
-                    //case 2 different months, within 7 days of today
-                    else if ((appMonth == month + 1 || month == 12 && appMonth == 1) && (date.lengthOfMonth() + appDay - day < 7)) {
-                        appointmentList.add(appointment);
-                    }
-                }
-            }
-            else {      //Filter level == 3                                     //Display appointments for the month
-                //TODO call build appointment method with prepared statement specifying within 30 days of same month
-                if(appMonth == month && appDay >= day){
-                    appointmentList.add(appointment);
-                }
-            }
+        String query = "";
+        //Case One, get all appointments
+        if(filterLevel == 0) {
+            query = "select * from appointments order by start";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            appointments = database.buildAppointments(ps);
+            database.closeConnection();
         }
-        return appointmentList;
+        //Case Two, get appointments for month
+        else if(filterLevel == 1) {
+            query = "select * from appointments where start >= ? and start < ? order by start";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, localToUTC(String.valueOf(dateTime)));
+            ps.setString(2, localToUTC(nextMonth(year, month) + "00:00:00"));
+            appointments = database.buildAppointments(ps);
+            database.closeConnection();
+        }
+        //Case Three, get appointments for week
+        else if(filterLevel == 2) {
+            query = "select * from appointments where start >= ? and start < ? order by start";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, localToUTC(String.valueOf(dateTime)));
+            ps.setString(2, localToUTC(nextWeek(year, month, day, numDaysThisMonth, wDay) + "00:00:00"));
+            appointments = database.buildAppointments(ps);
+            database.closeConnection();
+        }
+        //Case Four, get appointments for day
+        else if(filterLevel == 3) {
+            query = "select * from appointments where start >= ? and start < ? order by start";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, localToUTC(String.valueOf(dateTime)));
+            ps.setString(2, localToUTC(nextDay(year, month, day, numDaysThisMonth) + " 00:00:00"));
+            appointments = database.buildAppointments(ps);
+            database.closeConnection();
+        }
+        //Case Five, get appointments within 15 minutes of login
+        else { //filterLevel == 4
+            query = "select * from appointments where start >= ? and start < ? order by start";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, localToUTC(String.valueOf(dateTime)));
+            ps.setString(2, localToUTC(date + nextFifteenMinutes(hour, minute)));
+            appointments = database.buildAppointments(ps);
+            database.closeConnection();
+        }
+        return appointments;
     }
 
-    //todo make method to get end times
+    /**
+     * This method determines the string value of the date of next day, compared to current day
+     *
+     * @param year the current year
+     * @param month the current month
+     * @param day the current day
+     * @param numDaysInMonth the number of days in the current month
+     * @return the string value of the date of the next day
+     */
+    private String nextDay(int year, int month, int day, int numDaysInMonth){
+        if(day == numDaysInMonth){
+            if(month == 12){
+                month = 1;
+                year++;
+            }
+            month++;
+            day = 1;
+        }else{
+            day += 1;
+        }
+        String monthString = month < 10 ? "0" + month: String.valueOf(month);
+        String dayString = day < 10 ? "0" + day : String.valueOf(day);
+        return year + "-" + monthString + "-" + dayString;
+    }
 
     /**
-     * This method builds an observable list representing all available start time slots for the day
+     * This method determines the string value of the date of the first day of next month, compared to the current month
      *
-     * @return list of available start times
-     * @throws SQLException the exception if connection fails
+     * @param year the current year
+     * @param month the current month
+     * @return the string value of the date of the first day of next month
      */
-    public ObservableList<String> getStartTimes() throws SQLException{
-        ObservableList<Appointment> todaysAppointments = getAppointments(3);
-        ObservableList<String> availableTimes = FXCollections.observableArrayList();                   //build a list to hold open time slots
-        String today = dateAsString(todaysAppointments.get(0).getStartDateTime());
-        int i = 0;
-        int availableTime = 480;
+    private String nextMonth(int year, int month){
+        if(month == 12){
+            month = 1;
+            year++;
+        }else {
+            month++;
+        }
+        String monthString = month < 10 ? "0" + month : String.valueOf(month);
+        return year + "-" + monthString + "-01";
+    }
 
-        for(Appointment appointment : todaysAppointments) {
-            int easternTimeConverted = getTimeAsInt(easternToLocal(today + " " + convertIntToTime(availableTime)));
-            int takenTime = getTimeAsInt(appointment.getStartDateTime());
-            int duration = getAppointmentDurationAsInt(appointment);
-            //Time slot available
-            if (!(easternTimeConverted == takenTime)) {
-                availableTimes.add(convertIntToTime(easternTimeConverted));
+    /**
+     * This method determines the string value of the date of the first day of next week, compared to the current day
+     *
+     * @param year the current year
+     * @param month the current month
+     * @param day the current day
+     * @param numDaysInMonth the number of days in the current month
+     * @param weekDay the current day of the week as an integer between 1 and 7
+     * @return the string value of the date of the first day of next week
+     */
+    private String nextWeek(int year, int month, int day, int numDaysInMonth, int weekDay){
+        int daysLeftThisWeek = 7 - weekDay;
+        //Leave current month
+        if(day + daysLeftThisWeek + 1 > numDaysInMonth){
+            //Leave current Year
+            if(month == 12){
+                month = 1;
+                year++;
             }
-            //Time slot taken, advance until get to appointment end time
-            else {
-                while (duration > 0) {
-                    availableTime += 15;
-                    duration -= 15;
-                }
-            }
+            day = day + daysLeftThisWeek + 1 - numDaysInMonth;
+        }else{
+            day += daysLeftThisWeek + 1;
+        }
+        String monthString = month < 10 ? "0" + month: String.valueOf(month);
+        String dayString = day < 10 ? "0" + day : String.valueOf(day);
+        return year + "-" + monthString + "-" + dayString;
+    }
+
+    /**
+     * This method determines the string value of the date of fifteen minutes from the current time
+     *
+     * @param hour the current hour
+     * @param minute the current minute
+     * @return the string value of the date fifteen minutes from current time
+     */
+    private String nextFifteenMinutes(int hour, int minute){
+        if(minute + 15 >= 60) {
+            hour++;
+            minute = minute + 15 - 60;
+        }else {
+            minute += 15;
+        }
+        String hourString = hour < 10 ? "0" + hour : String.valueOf(hour);
+        String minuteString = minute < 10 ? "0" + minute : String.valueOf(minute);
+        return hourString + ":" + minuteString + ":" + "00";
+    }
+
+    /**
+     * This method builds an observable list representing all available end time slots based on the specified start time
+     *
+     * @param startTime the start time specified
+     * @param nextAppointmentStart the start time of the next appointment (The last available time slot without overlapping)
+     * @return list of available end times
+     */
+    //todo next appointment start is either next appointment in list or end of hours converted from 10pm eastern to local
+    public ObservableList<String> getEndTimes(String startTime, String nextAppointmentStart){
+        ObservableList<String> availableTimes = FXCollections.observableArrayList();
+        int availableTime = convertTimeToInt(startTime);
+        int nextAppointmentTime = convertTimeToInt(nextAppointmentStart);
+        int availableDuration = nextAppointmentTime - availableTime;
+
+        while(availableDuration > 0){
+            availableTime += 15;
+            availableDuration -= 15;
+            availableTimes.add(convertIntToTime(availableTime));
         }
         return availableTimes;
     }
 
     /**
-     * This method returns just the date portion of a string date time
+     * This method builds an observable list representing all available start time slots for the specified date
      *
-     * @param date the date to extract from
-     * @return the date portion of the date string
+     * @param dateOfAppointment the date specified
+     * @return list of available start times
+     * @throws SQLException the exception if connection fails
      */
-    private String dateAsString(String date){
-        String[] parts = date.split("T");
-        return parts[0];
+    public ObservableList<String> getStartTimes(Date dateOfAppointment) throws SQLException{
+        //todo add checks to see if appointment is for today, if so only return appointments after current time
+        ObservableList<Appointment> todaysAppointments = getAppointments(3);
+        ObservableList<String> availableTimes = FXCollections.observableArrayList();                   //build a list to hold open time slots
+        //Start of day 0800
+        int availableTime = 480;
+
+        //appointments must be sorted in ascending order by start time
+        for(Appointment appointment : todaysAppointments) {
+            int easternTimeConverted = convertDateTimeToInt(easternToLocal(dateOfAppointment + " " + convertIntToTime(availableTime)));
+            int takenTime = convertDateTimeToInt(appointment.getStartDateTime());
+            int duration = getAppointmentDurationAsInt(appointment);
+            //Time slot available, add and advance
+            while(!(easternTimeConverted == takenTime)) {
+                availableTimes.add(convertIntToTime(easternTimeConverted));
+                availableTime+=15;
+                easternTimeConverted = convertDateTimeToInt(easternToLocal(dateOfAppointment + " " + convertIntToTime(availableTime)));
+            }
+            //Time slot taken, advance until get to appointment end time
+            while (duration > 0) {
+                availableTime += 15;
+                duration -= 15;
+            }
+            //Examine next appointment time
+        }
+        //Get remaining available times after final appointment
+        while(availableTime < 1320){
+            int easternTimeConverted = convertDateTimeToInt(easternToLocal(dateOfAppointment + " " + convertIntToTime(availableTime)));
+            availableTimes.add(convertIntToTime(easternTimeConverted));
+            availableTime+=15;
+
+        }
+        return availableTimes;
     }
 
     /**
@@ -355,19 +404,27 @@ public class Data {
     }
 
     /**
+     * This method takes in a string time and returns the time of day represented as minutes from 00
+     *
+     * @param time the string from which to retrieve minutes
+     * @return the total number of minutes into the day represented by the string
+     */
+    private int convertTimeToInt(String time){
+        String[] timeParts = time.split(":");
+        int hours = Integer.parseInt(timeParts[0]);
+        int minutes = Integer.parseInt(timeParts[1]);
+        return hours * 60 + minutes;
+    }
+    /**
      * This method takes in a string date and returns the time of day represented as minutes from 00
      *
      * @param date the string from which to retrieve the minutes
      * @return the total number of minutes into the day represented by the string
      */
-    private int getTimeAsInt(String date){
+    private int convertDateTimeToInt(String date){
         String[] dateParts = date.split("T");
         String time = dateParts[1];
-        String[] timeParts = time.split(":");
-        int hours = Integer.parseInt(timeParts[0]);
-        int minutes = Integer.parseInt(timeParts[1]);
-        return hours * 60 + minutes;
-
+        return convertTimeToInt(time);
     }
 
     /**
@@ -377,21 +434,94 @@ public class Data {
      * @return the length of the appointment in minutes
      */
     private int getAppointmentDurationAsInt(Appointment appointment){
-        int startTotalMinutes = getTimeAsInt(appointment.getStartDateTime());
-        int endTotalMinutes = getTimeAsInt(appointment.getEndDateTime());
+        int startTotalMinutes = convertDateTimeToInt(appointment.getStartDateTime());
+        int endTotalMinutes = convertDateTimeToInt(appointment.getEndDateTime());
         return endTotalMinutes - startTotalMinutes;
     }
 
-    //TODO build 3 separate Prepared statements based on which report you want to build  to be passed to database.buildReport()
-    //  which will return a list back up that we can return and pass to a text area object line by line to display the report
-    public List<String> getReport(int reportNumber){
+    /**
+     * This method takes in a specific report number and returns that report to display in the GUI
+     *
+     * @param reportNumber the number of the report to generate
+     * @return the report requested
+     * @throws SQLException the exception if the connection fails
+     */
+    public List<String> getReport(int reportNumber) throws SQLException{
+        List<String> report = new ArrayList<>();
+
         //Report 1, total number of customer appointments by type and month
+        if(reportNumber == 1){
+            report.add("------------------------CUSTOMER APPOINTMENTS------------------------\n\n");
+            report.add("        TYPE             DATE            DESCRIPTION");
+            ObservableList<Appointment> appointments = FXCollections.observableArrayList();
+            String query = "select * from appointments order by type, year(start), month(start)";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            appointments = database.buildAppointments(ps);
+            database.closeConnection();
+            for(Appointment appointment : appointments){
+                report.add("     " + appointment.getType() + "     " + appointment.getStartDateTime() + "     " + appointment.getDescription());
+            }
+        }
 
         //Report 2, schedule for each contact in organization
-
-        //Report 3, total customers per country and division
-
-        return null;
+        else if(reportNumber == 2){
+            report.add("------------------------CONTACT SCHEDULES----------------------------\n\n");
+            ObservableList<Contact> contacts = FXCollections.observableArrayList();
+            String query1 = "select * from contacts";
+            Connection connection = database.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query1);
+            contacts = database.buildContacts(ps);
+            database.closeConnection();
+            for(Contact contact : contacts){
+                ObservableList<Appointment> contactSchedule = FXCollections.observableArrayList();
+                String query2 = "select * from appointments where Contact_ID = ?";
+                Connection connection1 = database.getConnection();
+                PreparedStatement ps1 = connection1.prepareStatement(query2);
+                ps1.setInt(1, contact.getContactId());
+                contactSchedule = database.buildAppointments(ps1);
+                database.closeConnection();
+                report.add(contact.getContactName());
+                for(Appointment appointment : contactSchedule){
+                    report.add("      ID = " + appointment.getAppointmentId() + " " + appointment.getTitle() + " " + appointment.getStartDateTime() + "  " + appointment.getEndDateTime() + " " + appointment.getType()
+                           + " " + appointment.getDescription()  +  " Customer = " + appointment.getCustomerId());
+                }
+            }
+        }
+        //Report 3, total number of customers by country and region
+        else{
+            report.add("--------------------------CUSTOMERS----------------------------------\n\n");
+            ObservableList<Country> countries = FXCollections.observableArrayList();
+            String query1 = "select * from countries";
+            Connection connection1 = database.getConnection();
+            PreparedStatement ps1 = connection1.prepareStatement(query1);
+            countries = database.buildCountries(ps1);
+            database.closeConnection();
+            ObservableList<FirstLevelDivision> divisions = FXCollections.observableArrayList();
+            for(Country country : countries){
+                report.add(country.getCountryName());
+                String query2 = "select * from First_Level_Divisions where country_ID = ?";
+                Connection connection2 = database.getConnection();
+                PreparedStatement ps2 = connection2.prepareStatement(query2);
+                ps2.setInt(1, country.getCountryId());
+                divisions = database.buildDivisions(ps2);
+                database.closeConnection();
+                ObservableList<Customer> customers = FXCollections.observableArrayList();
+                for(FirstLevelDivision division : divisions){
+                    report.add("     " + division.getDivisionName());
+                    String query3 = "select * from customers where division_ID = ?";
+                    Connection connection3 = database.getConnection();
+                    PreparedStatement ps3 = connection3.prepareStatement(query3);
+                    ps3.setInt(1, division.getDivisionId());
+                    customers = database.buildCustomers(ps3);
+                    database.closeConnection();
+                    for(Customer customer : customers){
+                        report.add("          " + customer.getCustomerName() + " " + customer.getPhone() + " " + customer.getAddress());
+                    }
+                }
+            }
+        }
+        return report;
     }
 
     //===========================================Customer Manipulation Methods==========================================
@@ -538,7 +668,7 @@ public class Data {
         String query = "Delete from appointments where Appointment_ID = ?";
         Connection connection = database.getConnection();
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, appointment.getAppointmentId()));
+        ps.setInt(1, appointment.getAppointmentId());
         int result = database.update(ps);
         database.closeConnection();
         return result > 0 ? 1 : 0;

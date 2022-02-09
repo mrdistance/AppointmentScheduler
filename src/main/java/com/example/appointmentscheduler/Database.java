@@ -219,20 +219,6 @@ public class Database {
         return appointments;
     }
 
-    /**
-     * This method pulls data from the database and builds a report to be displayed in the GUI
-     *
-     * @param ps the prepared statement specifying which data to pull from the database
-     * @return a list of strings of the data for easy display
-     * @throws SQLException the exception if the connection fails
-     */
-    //TODO based on report number have specific prepared statement passed to private query method, that formats the returned
-    //  data into a list to be passed back to the calling method
-    public List<String> buildReport(PreparedStatement ps) throws SQLException{
-        this.query(ps);
-        return null;
-    }
-
     //=============================================Time Conversion Method===============================================
 
     /**
