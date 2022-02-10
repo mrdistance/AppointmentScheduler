@@ -20,7 +20,7 @@ public class Appointment {
     private String description;
     private String location;
     private String type;
-    private String startDateTime;                //TODO from sql will need to be converted to toLocalDateTime
+    private String startDateTime;
     private String endDateTime;
     private int customerId;
     private int userId;

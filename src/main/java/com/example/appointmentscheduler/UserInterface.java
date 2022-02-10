@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,19 +39,29 @@ public class UserInterface extends Application{
     //before displaying in the gui
 
 
-    private ArrayList<Country> countries;
-    private ArrayList<FirstLevelDivision> divisions;
-    private ArrayList<User> users;
-    private ArrayList<Contact> contacts;
-    private ObservableList<Customer> customers;
-    private ObservableList<Appointment> appointments;
-    private User user;
-    private Data data;
+    private static ObservableList<Country> countries;
+    private static ArrayList<FirstLevelDivision> divisions;
+    private static ArrayList<User> users;
+    private static ArrayList<Contact> contacts;
+    private static ObservableList<Customer> customers;
+    private static ObservableList<Appointment> appointments;
+    private static User user;
+    private static Data data;
 
-    public UserInterface(){
-        user = null;
+    public static void main(String[] args) throws SQLException {
         data = new Data();
+        user = data.login("admin" , "admin");
+
+
+
+
+        for(String line : data.getReport(3)){
+            System.out.println(line);
+        }
+
+
     }
+
 
     //login button.onclick  User user = data.login(usernameTF.getText(), passwordTF.getText());
     //if user == null, error message, clear password field
@@ -62,23 +74,16 @@ public class UserInterface extends Application{
         return rb.getString(fieldName);
     }
 
-    public void launch(){
-        launch();
-    }
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
+        //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        //Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        //stage.setTitle("Hello!");
+        //stage.setScene(scene);
         stage.show();
 
     }
-
-    public static void main(String[] args) {
-        launch();
-    }
 }
 
 
-}
+
