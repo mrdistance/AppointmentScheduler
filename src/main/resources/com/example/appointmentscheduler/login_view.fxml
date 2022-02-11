@@ -25,18 +25,18 @@
             <TextField fx:id="password" promptText="Password" />
          </children>
       </VBox>
-      <Label fx:id="userLocation" alignment="CENTER" layoutX="411.0" layoutY="14.0" prefHeight="27.0" prefWidth="175.0">
+      <Label fx:id="userLocation" alignment="CENTER" layoutX="430.0" layoutY="14.0" prefHeight="27.0" prefWidth="156.0">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-      <Button fx:id="loginButton" alignment="CENTER" layoutX="243.0" layoutY="316.0" mnemonicParsing="false" onAction="#onLoginButtonClick" text="Login" wrapText="true">
+      <Button fx:id="loginButton" alignment="CENTER" layoutX="215.0" layoutY="272.0" mnemonicParsing="false" onAction="#onLoginButtonClick" prefHeight="100.0" prefWidth="170.0" text="Login" textAlignment="CENTER" wrapText="true">
          <font>
             <Font size="27.0" />
          </font>
       </Button>
       <Label fx:id="errorMessage" alignment="CENTER" layoutX="171.0" layoutY="251.0" prefHeight="17.0" prefWidth="259.0" textFill="#f50505" />
-      <Label fx:id="titlelabel" alignment="CENTER" contentDisplay="CENTER" layoutX="84.0" layoutY="89.0" text="Appointment Scheduler 2.0">
+      <Label fx:id="titlelabel" alignment="CENTER" contentDisplay="CENTER" layoutX="84.0" layoutY="35.0" prefHeight="107.0" prefWidth="434.0" text=" Appointment Scheduler 2.0 " textAlignment="CENTER" wrapText="true">
          <font>
             <Font size="36.0" />
          </font>

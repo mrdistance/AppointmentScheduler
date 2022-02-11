@@ -3,6 +3,7 @@ package com.example.appointmentscheduler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -54,9 +55,10 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Locale.setDefault(new Locale("fr"));
+        //Locale.setDefault(new Locale("fr"));
         ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         titlelabel.setText(rb.getString("titlelabel"));
+        titlelabel.setAlignment(Pos.CENTER);
         userNameLabel.setText(rb.getString("usernamelabel"));
         username.setPromptText(rb.getString("usernameprompt"));
         passwordLabel.setText(rb.getString("passwordlabel"));
@@ -64,6 +66,7 @@ public class LoginController implements Initializable {
         errorMessage.setText(rb.getString("errormessage"));
         errorMessage.setVisible(false);
         loginButton.setText(rb.getString("buttonlabel"));
+        loginButton.setAlignment(Pos.CENTER);
         userLocation.setText(data.getLocation());
     }
 }
