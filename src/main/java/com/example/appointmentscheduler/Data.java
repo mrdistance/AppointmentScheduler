@@ -32,17 +32,29 @@ public class Data {
     private Database database;
     //Track current date and time of user
     private LocalDateTime dateTime;
+    //Track user location
+    private ZoneId zoneId;
+    //Track the user
+    private User globalUser;
 
 
     public Data(){
         //Initialize variables
         dateTime = LocalDateTime.now();
         database = new Database();
+        zoneId = ZoneId.systemDefault();
     }
 
 
     //=====================================Location Getter Methods======================================================
 
+    public String getLocation(){
+        return zoneId.toString();
+    }
+
+    public User getGlobalUser(){
+        return this.globalUser;
+    }
     /**
      * This method queries the database and returns an observable list of all the countries
      *
@@ -90,6 +102,7 @@ public class Data {
             if (user != null) {                                   //Username is valid and exists
                 if (password.equals(user.getPassword())) {        //Password is valid and matches username
                     logAttempt("SUCCESS", userName);
+                    globalUser = user;
                     return user;
                 }
             }
@@ -535,6 +548,7 @@ public class Data {
                 String line = String.format("%1$-20s %2$-30s %3$-30s", appointment.getType(), appointment.getStartDateTime(), appointment.getDescription());
                 report.add(line);
             }
+            return report;
         }
 
         //Report 2, schedule for each contact in organization
@@ -564,6 +578,7 @@ public class Data {
                     report.add(line);
                 }
             }
+            return report;
         }
         //Report 3, total number of customers by country and region
         else{
@@ -608,8 +623,8 @@ public class Data {
                     report.add("          " + customer.getCustomerName());
                 }
             }
+            return report;
         }
-        return report;
     }
 
     //===========================================Customer Manipulation Methods==========================================

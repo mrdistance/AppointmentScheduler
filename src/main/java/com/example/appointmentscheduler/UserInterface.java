@@ -1,43 +1,21 @@
 package com.example.appointmentscheduler;
 
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.ResourceBundle;
-import java.util.TimeZone;
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
-import java.io.IOException;
+import javafx.application.Application;
 
 public class UserInterface extends Application{
-
-    //Add main method, start method, some sort of loading message should be displayed until all data built
-
-    //Instantiate Login Object once application is open, login uses database object which only pulls users table
-    //to validate credentials, login object also establishes user location, time, language, etc to display on login screen
-
-
-    //instantiate Data object once user successfully logs in
-    //Data object will be running the show while the application is open behind the scenes
-
-    //This is where a private method will go to convert eastern into local for storing hashmap times in the appropriate
-    //conversion of 8-10 eastern to local.  so put hashmap times as 8:00, 8:15, etc,  but call easterntolocal method on them
-    //before displaying in the gui
-
 
     private static ObservableList<Country> countries;
     private static ArrayList<FirstLevelDivision> divisions;
@@ -50,7 +28,8 @@ public class UserInterface extends Application{
 
     public static void main(String[] args) throws SQLException {
         data = new Data();
-        user = data.login("admin" , "admin");
+        launch(UserInterface.class);
+        //user = LoginController.user;
 
 
 
@@ -58,6 +37,7 @@ public class UserInterface extends Application{
         for(String line : data.getReport(3)){
             System.out.println(line);
         }
+
 
 
     }
@@ -76,10 +56,11 @@ public class UserInterface extends Application{
 
     @Override
     public void start(Stage stage) throws IOException {
-        //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        //Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        //stage.setTitle("Hello!");
-        //stage.setScene(scene);
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginController.class.getResource("login_view.fxml"));
+
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        stage.setTitle("Appointment Scheduler 2.0");
+        stage.setScene(scene);
         stage.show();
 
     }
