@@ -1,11 +1,8 @@
 package com.example.appointmentscheduler;
 
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -50,7 +47,7 @@ public class UserInterface extends Application{
     //todo make sure translates all login page text : (do for all pages?, en spanish and french?) label.setText(translate(fieldname);
     public String translate(String fieldName){
         //Locale.setDefault(new Locale("fr"));
-        ResourceBundle rb = ResourceBundle.getBundle("language_files/rb");
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         return rb.getString(fieldName);
     }
 
