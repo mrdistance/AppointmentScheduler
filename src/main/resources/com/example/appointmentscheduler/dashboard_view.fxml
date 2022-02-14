@@ -1,14 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.appointmentscheduler.DashboardController"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.appointmentscheduler.DashboardController">
+   <children>
+      <Button layoutX="240.0" layoutY="324.0" mnemonicParsing="false" onAction="#onLogoutButtonClick" text="Logout" wrapText="true">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Button>
+      <Button layoutX="14.0" layoutY="109.0" mnemonicParsing="false" onAction="#onCustomerButtonClick" prefHeight="45.0" prefWidth="174.0" text="Customers" wrapText="true">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+      <Button layoutX="14.0" layoutY="178.0" mnemonicParsing="false" onAction="#onAppointmentButtonClick" text="Appointments">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+      <Button layoutX="14.0" layoutY="248.0" mnemonicParsing="false" onAction="#onReportButtonClick" prefHeight="45.0" prefWidth="174.0" text="Reports">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+      <Label layoutX="142.0" layoutY="28.0" text="Welcome Username">
+         <font>
+            <Font size="41.0" />
+         </font>
+      </Label>
+      <Label fx:id="upcomingappointment" alignment="CENTER" layoutX="240.0" layoutY="175.0" prefHeight="97.0" prefWidth="319.0" text="Nothing To Show" textAlignment="CENTER" wrapText="true" />
+      <Label layoutX="331.0" layoutY="119.0" prefHeight="26.0" prefWidth="161.0" text="Urgent Appointments">
+         <font>
+            <Font size="17.0" />
+         </font>
+      </Label>
+   </children>
 </AnchorPane>
