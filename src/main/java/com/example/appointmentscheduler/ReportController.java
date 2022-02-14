@@ -1,20 +1,14 @@
 package com.example.appointmentscheduler;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 public class ReportController{
 
     private Data data = new Data();
-    Stage stage;
 
     @FXML
     private TextArea displayarea;
@@ -29,7 +23,7 @@ public class ReportController{
     }
 
     @FXML
-    void onBackButtonClick(ActionEvent event) throws IOException {
+    void onBackButtonClick(ActionEvent event){
 
     }
 
