@@ -53,9 +53,9 @@ public class UserInterface extends Application{
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(LoginController.class.getResource("login_view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(LoginController.class.getResource("appointment_edit_view.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Appointment Scheduler 2.0");
         stage.setScene(scene);
         stage.show();

@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.appointmentscheduler.CustomerLandingController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="605.0" prefWidth="821.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.appointmentscheduler.CustomerLandingController">
+   <children>
+      <Button fx:id="homeButton" alignment="CENTER" layoutX="670.0" layoutY="528.0" mnemonicParsing="false" onAction="#onHomeButtonClick" prefHeight="63.0" prefWidth="137.0" text="HOME">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button fx:id="addButton" alignment="CENTER" layoutX="175.0" layoutY="465.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="63.0" prefWidth="137.0" text="ADD" textAlignment="CENTER">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button fx:id="updateButton" alignment="CENTER" layoutX="333.0" layoutY="465.0" mnemonicParsing="false" onAction="#onUpdateButtonClick" prefHeight="63.0" prefWidth="137.0" text="UPDATE">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button fx:id="deleteButton" layoutX="491.0" layoutY="465.0" mnemonicParsing="false" onAction="#onDeleteButtonClick" prefHeight="63.0" prefWidth="137.0" text="DELETE">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <TableView fx:id="customerTable" layoutX="41.0" layoutY="104.0" prefHeight="320.0" prefWidth="738.0">
+        <columns>
+          <TableColumn fx:id="idField" prefWidth="53.0" text="ID" />
+          <TableColumn fx:id="nameField" prefWidth="111.0" text="Name" />
+            <TableColumn fx:id="addressField" prefWidth="201.0" text="Address" />
+            <TableColumn fx:id="postalCodeField" prefWidth="78.0" text="Postal_Code" />
+            <TableColumn fx:id="phoneField" prefWidth="128.0" text="Phone" />
+            <TableColumn fx:id="divisionField" prefWidth="166.0" text="Division" />
+        </columns>
+      </TableView>
+      <Label fx:id="customerLabel" alignment="CENTER" layoutX="140.0" layoutY="27.0" prefHeight="58.0" prefWidth="542.0" text="Customers">
+         <font>
+            <Font size="40.0" />
+         </font>
+      </Label>
+      <Label fx:id="messageLabel" alignment="CENTER" layoutX="178.0" layoutY="426.0" prefHeight="38.0" prefWidth="448.0" text="messagestouser">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+   </children>
 </AnchorPane>
