@@ -32,10 +32,8 @@ public class Database {
     private final String databaseName = "client_schedule";
     private final String jdbcUrl = protocol + vendor + location + databaseName + "?connectionTimeZone = SERVER"; // LOCAL
     private final String driver = "com.mysql.cj.jdbc.Driver"; // Driver reference
-    private final String userName = "root"; // my pc Username
-    private String password = "Them@1lman12."; // my pc Password
-    //private static final String userName = "sqlUser"; // vm Username
-    //private static String password = "Passw0rd!"; // vm Password
+    private static final String userName = "sqlUser"; // vm Username
+    private static String password = "Passw0rd!"; // vm Password
     private Connection connection;  // Connection Interface
 
 
