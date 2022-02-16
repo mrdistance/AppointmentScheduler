@@ -5,9 +5,9 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
-
 
 <AnchorPane prefHeight="607.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.appointmentscheduler.AppointmentLandingController">
    <children>
@@ -31,7 +31,7 @@
             <Font size="16.0" />
          </font>
       </Button>
-      <TableView layoutX="14.0" layoutY="140.0" prefHeight="317.0" prefWidth="973.0">
+      <TableView fx:id="appointmentTable" layoutX="14.0" layoutY="140.0" prefHeight="317.0" prefWidth="973.0">
         <columns>
           <TableColumn fx:id="appointmentIDField" prefWidth="40.0" text="ID" />
           <TableColumn fx:id="titleField" prefWidth="91.0" text="Title" />
@@ -50,18 +50,21 @@
             <Font size="40.0" />
          </font>
       </Label>
-      <Label fx:id="messageLabel" alignment="CENTER" layoutX="222.0" layoutY="463.0" prefHeight="29.0" prefWidth="558.0" text="messages" />
-      <RadioButton fx:id="allButton" layoutX="264.0" layoutY="99.0" mnemonicParsing="false" onAction="#onAllButtonSelected" text="ALL">
+      <Label fx:id="messageLabel" alignment="CENTER" layoutX="222.0" layoutY="463.0" prefHeight="29.0" prefWidth="558.0" />
+      <RadioButton fx:id="allButton" layoutX="264.0" layoutY="99.0" mnemonicParsing="false" onAction="#onAllButtonSelected" selected="true" text="ALL">
+         <font>
+            <Font size="16.0" />
+         </font>
+         <toggleGroup>
+            <ToggleGroup fx:id="filterLevel" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="weekButton" layoutX="467.0" layoutY="99.0" mnemonicParsing="false" onAction="#onWeekButtonSelected" text="WEEK" toggleGroup="$filterLevel">
          <font>
             <Font size="16.0" />
          </font>
       </RadioButton>
-      <RadioButton fx:id="weekButton" layoutX="467.0" layoutY="99.0" mnemonicParsing="false" onAction="#onWeekButtonSelected" text="WEEK">
-         <font>
-            <Font size="16.0" />
-         </font>
-      </RadioButton>
-      <RadioButton fx:id="monthButton" layoutX="657.0" layoutY="99.0" mnemonicParsing="false" onAction="#onMonthButtonSelected" text="MONTH">
+      <RadioButton fx:id="monthButton" layoutX="657.0" layoutY="99.0" mnemonicParsing="false" onAction="#onMonthButtonSelected" text="MONTH" toggleGroup="$filterLevel">
          <font>
             <Font size="16.0" />
          </font>

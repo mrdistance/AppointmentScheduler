@@ -38,11 +38,6 @@ public class Customer {
         this.divisionId = divisionId;
     }
 
-
-    //Implement Error checks inside these setter methods to clean up gui and main classes-----------------------------------
-    //Customer Id should be generated from the database automatically upon creation ----------------------------------------
-
-
     /**
      * @param customerId the customer id to set
      */

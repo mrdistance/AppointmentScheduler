@@ -16,7 +16,10 @@
             <Font size="18.0" />
          </font>
       </Label>
-      <TextArea fx:id="displayarea" editable="false" layoutX="8.0" layoutY="89.0" prefHeight="464.0" prefWidth="782.0" />
+      <TextArea fx:id="displayarea" editable="false" layoutX="8.0" layoutY="89.0" prefHeight="464.0" prefWidth="782.0" promptText="Select a Report to Display it's Contents">
+         <font>
+            <Font name="Monospaced Regular" size="12.0" />
+         </font></TextArea>
       <Button layoutX="745.0" layoutY="561.0" mnemonicParsing="false" onAction="#onBackButtonClick" text="Back" />
    </children>
 </AnchorPane>

@@ -7,19 +7,21 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.appointmentscheduler.DashboardController">
    <children>
-      <Label fx:id="usernamelabel" layoutX="14.0" layoutY="14.0" prefHeight="46.0" prefWidth="150.0" text="USER : " />
-      <Label fx:id="upcomingdisplay" alignment="CENTER" layoutX="235.0" layoutY="175.0" prefHeight="95.0" prefWidth="290.0" text="No Upcoming Appointments" wrapText="true" />
-      <Button fx:id="customersButton" layoutX="29.0" layoutY="121.0" mnemonicParsing="false" onAction="#onCustomerButtonClick" text="Customers">
+      <Label fx:id="upcomingdisplay" alignment="CENTER" layoutX="195.0" layoutY="97.0" prefHeight="206.0" prefWidth="391.0" text="No Upcoming Appointments" wrapText="true">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
+      <Button fx:id="customersButton" layoutX="29.0" layoutY="52.0" mnemonicParsing="false" onAction="#onCustomerButtonClick" text="Customers">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="appointmentButton" layoutX="29.0" layoutY="200.0" mnemonicParsing="false" onAction="#onAppointmentButtonClick" text="Appointments">
+      <Button fx:id="appointmentButton" layoutX="29.0" layoutY="178.0" mnemonicParsing="false" onAction="#onAppointmentButtonClick" text="Appointments">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="reportButton" layoutX="29.0" layoutY="284.0" mnemonicParsing="false" onAction="#onReportButtonClick" text="Reports">
+      <Button fx:id="reportButton" layoutX="29.0" layoutY="296.0" mnemonicParsing="false" onAction="#onReportButtonClick" text="Reports">
          <font>
             <Font size="20.0" />
          </font>
@@ -29,5 +31,6 @@
             <Font size="20.0" />
          </font>
       </Button>
+      <Label layoutX="363.0" layoutY="113.0" />
    </children>
 </AnchorPane>

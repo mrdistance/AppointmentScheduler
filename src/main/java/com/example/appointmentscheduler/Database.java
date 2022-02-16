@@ -121,6 +121,26 @@ public class Database {
     }
 
     /**
+     * This method pulls a list of all the users from the database
+     *
+     * @param ps the prepared statement
+     * @return the list of users
+     * @throws SQLException the exception if connection fails
+     */
+    public ObservableList<User> buildUsers(PreparedStatement ps) throws SQLException{
+        ObservableList<User> users = FXCollections.observableArrayList();
+        ResultSet result = query(ps);
+        while(result.next()){
+            int id = result.getInt(1);
+            String name = result.getString(2);
+            String password = result.getString(3);
+            User user = new User(id, name, password);
+            users.add(user);
+        }
+        return users;
+    }
+
+    /**
      * This method pulls the corresponding user from the database to validate credentials and track logged-in user
      *
      * @param ps the prepared statement to specify which user to look for

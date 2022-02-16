@@ -19,7 +19,7 @@
             <Font size="20.0" />
          </font>
       </Button>
-      <Label fx:id="errorMessageLabel" alignment="CENTER" layoutX="44.0" layoutY="620.0" prefHeight="159.0" prefWidth="283.0" text="Error Messages" wrapText="true">
+      <Label fx:id="errorMessageLabel" alignment="CENTER" layoutX="44.0" layoutY="570.0" prefHeight="209.0" prefWidth="283.0" textFill="RED" wrapText="true">
          <font>
             <Font size="16.0" />
          </font>
@@ -35,13 +35,13 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <TextField fx:id="customerNameField" layoutX="44.0" layoutY="150.0" prefHeight="35.0" prefWidth="194.0" promptText="Enter Customer Name" />
+      <TextField fx:id="customerNameField" layoutX="44.0" layoutY="150.0" prefHeight="35.0" prefWidth="194.0" promptText="First and Last" />
       <Label fx:id="customerPhoneLabel" alignment="CENTER" layoutX="44.0" layoutY="216.0" text="Phone" textAlignment="CENTER">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-      <TextField fx:id="customerPhoneField" layoutX="44.0" layoutY="241.0" prefHeight="35.0" prefWidth="149.0" promptText="XXX-XXX-XXXX" />
+      <TextField fx:id="customerPhoneField" layoutX="44.0" layoutY="241.0" prefHeight="35.0" prefWidth="149.0" promptText="1112223333" />
       <Label fx:id="customerAddressLabel" alignment="CENTER" layoutX="44.0" layoutY="309.0" text="Address   (Street, City)">
          <font>
             <Font size="16.0" />
@@ -53,7 +53,7 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <TextField fx:id="customerPostalCodeField" layoutX="44.0" layoutY="433.0" prefHeight="35.0" prefWidth="149.0" promptText="Zip" />
+      <TextField fx:id="customerPostalCodeField" layoutX="44.0" layoutY="433.0" prefHeight="35.0" prefWidth="149.0" promptText="5 digit Zip" />
       <Label fx:id="countryLabel" layoutX="44.0" layoutY="500.0" text="Country">
          <font>
             <Font size="16.0" />
@@ -64,7 +64,7 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <ChoiceBox fx:id="countryChoiceBox" layoutX="44.0" layoutY="525.0" prefWidth="150.0" />
+      <ChoiceBox fx:id="countryChoiceBox" layoutX="44.0" layoutY="525.0" onAction="#onCountrySelection" prefWidth="150.0" />
       <ChoiceBox fx:id="divisionChoiceBox" disable="true" layoutX="238.0" layoutY="525.0" prefWidth="150.0" />
    </children>
 </AnchorPane>

@@ -1,7 +1,5 @@
 package com.example.appointmentscheduler;
 
-import java.time.LocalDateTime;
-
 /**
  * This class provides an object to store appointments pulled from and pushed to a database
  * Requires setters, getters, and input validation as appointments can be created and deleted
@@ -51,10 +49,6 @@ public class Appointment {
         this.userId = userId;
         this.contactId = contactId;
     }
-
-
-    //TODO Implement Error checks inside these setter methods to clean up gui and main classes-----------------------------------
-
 
     /**
      * @return the appointment id

@@ -2,7 +2,6 @@ package com.example.appointmentscheduler;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
@@ -19,9 +18,7 @@ import java.util.*;
  * in the form of lists, or return an integer specifying successful or failed database inserts, updates, and deletions.
  *
  * Class Database.java
- */
-
-/**
+ *
  * @author Joshua Call
  */
 
@@ -34,10 +31,10 @@ public class Data {
     private LocalDateTime dateTime;
     //Track user location
     private ZoneId zoneId;
-    //Track the user
-    private User globalUser;
 
-
+    /**
+     * This method creates a data object to be used by other classes
+     */
     public Data(){
         //Initialize variables
         dateTime = LocalDateTime.now();
@@ -48,19 +45,12 @@ public class Data {
 
     //=====================================Location Getter Methods======================================================
 
-    public String getLocation(){
-        return zoneId.toString();
-    }
-
-    public User getGlobalUser(){
-        return this.globalUser;
-    }
     /**
      * This method queries the database and returns an observable list of all the countries
      *
      * @return the countries stored in the database
+     * @throws SQLException the exception if the connection fails with the database
      */
-
     public ObservableList<Country> getCountries() throws SQLException{
         String query = "Select * from countries";
         Connection connection = database.getConnection();
@@ -71,11 +61,26 @@ public class Data {
     }
 
     /**
+     * This method queries the database and returns an observable list of all the divisions
+     *
+     * @return the first level divisions stored in the database
+     * @throws SQLException the exception if the connection fails with the database
+     */
+    public ObservableList<FirstLevelDivision> getDivisions() throws SQLException {
+        String query = "Select * from first_level_divisions";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ObservableList<FirstLevelDivision> divisions = database.buildDivisions(ps);
+        database.closeConnection();
+        return divisions;
+    }
+    /**
      * This method queries the database and returns an observable list of all the divisions that pertain
      * to the specified country
      *
      * @param country the country to match divisions to
      * @return the first level divisions stored in the database that are a match
+     * @throws SQLException the exception if the connection fails with the database
      */
     public ObservableList<FirstLevelDivision> getDivisions(Country country) throws SQLException{
         String query = "Select * from first_level_divisions where country_id = ?";
@@ -90,11 +95,12 @@ public class Data {
     //============================================Login Validation======================================================
 
     /**
-     * This method determines if the username and password a user has entered are valid
+     * This method determines if the username and password a user has entered are valid and logs the attempt
      *
      * @param userName the username taken from the login form
      * @param password the password taken from the login form
      * @return a valid user or null
+     * @throws SQLException the exception if the connection fails with the database
      */
     public User login(String userName, String password) throws SQLException{
         try {
@@ -102,7 +108,6 @@ public class Data {
             if (user != null) {                                   //Username is valid and exists
                 if (password.equals(user.getPassword())) {        //Password is valid and matches username
                     logAttempt("SUCCESS", userName);
-                    globalUser = user;
                     return user;
                 }
             }
@@ -134,11 +139,56 @@ public class Data {
     //=============================================Data Getter Methods==================================================
 
     /**
+     * This method gets the zone id of the user ex: America/Denver
+     *
+     * @return the zone id as a string
+     */
+    public String getLocation(){
+        return zoneId.toString();
+    }
+
+    /**
+     * This method gets the current date of the user
+     *
+     * @return the date
+     */
+    public LocalDate getDate(){
+        return this.dateTime.toLocalDate();
+    }
+
+    /**
+     * This method gets the date of an appointment
+     *
+     * @param appointment the appointment to find the date for
+     * @return the date of the chosen appointment
+     */
+    public LocalDate getAppointmentDate(Appointment appointment){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(appointment.getStartDateTime(), formatter).toLocalDate();
+    }
+
+    /**
+     * This method queries the database and returns an Observable List of all the users in it
+     *
+     * @return the users stored in the database
+     * @throws SQLException the exception if the connection fails with the database
+     */
+    public ObservableList<User> getUsers() throws SQLException{
+        String query = "Select * from users";
+        Connection connection = database.getConnection();
+        PreparedStatement ps = connection.prepareStatement(query);
+        ObservableList<User> users = database.buildUsers(ps);
+        database.closeConnection();
+        return users;
+    }
+
+    /**
      * This method checks to see if there is a user in the database that matches the username entered on
      * the login form
      *
      * @param username the username taken from the login form
      * @return the user stored in the database
+     * @throws SQLException the exception if the connection fails with the database
      */
     private User getUser(String username) throws SQLException{
         String query = "Select * from users where User_Name = ?";
@@ -154,6 +204,7 @@ public class Data {
      * This method queries the database and returns an Observable list of all the contacts in it
      *
      * @return the contacts stored in the database
+     * @throws SQLException the exception if the connection fails with the database
      */
     public ObservableList<Contact> getContacts() throws SQLException{
         String query = "Select * from contacts";
@@ -165,9 +216,61 @@ public class Data {
     }
 
     /**
+     * This method returns an Observable list of all the names of all the contacts in the database
+     *
+     * @return the contact names stored in the database
+     * @throws SQLException the exception if the connection fails with the database
+     */
+    public ObservableList<String> getContactNames() throws SQLException {
+        ObservableList<Contact> contacts = getContacts();
+        ObservableList<String> contactNames = FXCollections.observableArrayList();
+        for(Contact contact : contacts){
+            contactNames.add(contact.getContactName());
+        }
+        return contactNames;
+    }
+
+    /**
+     * This method returns the contact name associated with a contact ID
+     *
+     * @param contactID the id to search for
+     * @return the contact name that is a match
+     * @throws SQLException the exception if the connection fails with the database
+     */
+    public String getContactName(int contactID) throws SQLException {
+        String name = "";
+        for(Contact contact : getContacts()){
+            if(contact.getContactId() == contactID){
+                return contact.getContactName();
+            }
+        }
+        return name;
+    }
+
+    /**
+     * This method builds an Observable list of fixed possible types for use by the user when working with appointments
+     *
+     * @return the list of all the available appointment types
+     */
+    public ObservableList<String> getTypes(){
+        ObservableList<String> types = FXCollections.observableArrayList();
+        types.add("Planning Session");
+        types.add("Lunch");
+        types.add("Pitch Meeting");
+        types.add("Interview");
+        types.add("Product Review");
+        types.add("Testing");
+        types.add("Personal");
+        types.add("Budget");
+        types.add("Audit");
+        return types;
+    }
+
+    /**
      * This method queries the database and returns an observable list of all the customers in it
      *
      * @return the customers stored in the database
+     * @throws SQLException the exception if the connection fails with the database
      */
     public ObservableList<Customer> getCustomers() throws SQLException {
         String query = "Select * from customers";
@@ -184,7 +287,9 @@ public class Data {
      * well as appointments that will occur within 15 minutes of user login.
      *
      * @param filterLevel the desired level of filtering for appointments(0: All, 1: This month, 2: This week, 3: Today, 4: 15 minutes)
+     * @param filterDate the date to filter the appointments for
      * @return A list holding the filtered appointments
+     * @throws SQLException the exception if the connection fails with the database
      */
     public ObservableList<Appointment> getAppointments(int filterLevel, LocalDate filterDate) throws SQLException{
         ObservableList<Appointment> appointments = FXCollections.observableArrayList();
@@ -383,8 +488,10 @@ public class Data {
     /**
      * This method builds an observable list representing all available end time slots based on the specified start time
      *
+     * @param dayOfAppointment the day specified
      * @param startTime the start time specified
      * @return list of available end times
+     * @throws SQLException the exception if the connection fails with the database
      */
     public ObservableList<String> getEndTimes(LocalDate dayOfAppointment, String startTime) throws SQLException{
         String nextAppointmentStart = getNextAppointmentStart(dayOfAppointment, startTime);
@@ -441,7 +548,7 @@ public class Data {
             int duration = getAppointmentDurationAsInt(appointment);
             System.out.println("takenTime: " + takenTime + " duration:  " + duration);
             //Time slot available, add and advance
-            //todo something wrong here?
+            //fixme something wrong here? convert int to time
             while(!(easternTimeConverted == takenTime)) {
                 availableTimes.add(convertIntToTime(easternTimeConverted));
                 availableTime+=15;
@@ -478,7 +585,7 @@ public class Data {
         int time = timeInMinutes;
         while(timeInMinutes > 1440){
             time -= 1440;
-            //todo add day to date if hours were greater than 24
+            //fixme add day to date if hours were greater than 24?
         }
         hours = time / 60;
 
@@ -536,8 +643,8 @@ public class Data {
 
         //Report 1, total number of customer appointments by type and month
         if(reportNumber == 1){
-            report.add("------------------------CUSTOMER APPOINTMENTS---------------------------\n\n");
-            report.add("TYPE                        DATE                    DESCRIPTION\n");
+            report.add("------------------------------------------CUSTOMER APPOINTMENTS------------------------------------------\n");
+            report.add("TYPE                                              DATE                                        DESCRIPTION\n\n");
             ObservableList<Appointment> appointments = FXCollections.observableArrayList();
             String query = "select * from appointments order by type, start";
             Connection connection = database.getConnection();
@@ -545,15 +652,15 @@ public class Data {
             appointments = database.buildAppointments(ps);
             database.closeConnection();
             for(Appointment appointment : appointments){
-                String line = String.format("%1$-20s %2$-30s %3$-30s", appointment.getType(), appointment.getStartDateTime(), appointment.getDescription());
+                String line = String.format("%1$-42s %2$s %3$42s\n", appointment.getType(), appointment.getStartDateTime(), appointment.getDescription());
                 report.add(line);
             }
             return report;
         }
-
         //Report 2, schedule for each contact in organization
         else if(reportNumber == 2){
-            report.add("------------------------------------------------CONTACT SCHEDULES----------------------------------------------------\n\n");
+            report.add("---------------------------------------------CONTACT SCHEDULES---------------------------------------------\n");
+            report.add("   #     TITLE            START                END            TYPE                 DESCRIPTION     CUSTOMER\n\n");
             ObservableList<Contact> contacts = FXCollections.observableArrayList();
             String query1 = "select * from contacts order by contact_name";
             Connection connection = database.getConnection();
@@ -570,10 +677,10 @@ public class Data {
                 database.closeConnection();
                 report.add(contact.getContactName());
                 if(contactSchedule.isEmpty()){
-                    report.add("     No Appointments");
+                    report.add("   No Appointments");
                 }
                 for(Appointment appointment : contactSchedule){
-                    String line = String.format("     %1$-5s %2$-10s %3$-20s %4$-25s %5$-20s %6$-25s %7$-3s", appointment.getAppointmentId(), appointment.getTitle(), appointment.getStartDateTime(), appointment.getEndDateTime(),
+                    String line = String.format("   %1$-5s %2$-10s %3$-20s %4$-20s %5$-20s %6$-20s %7$s", appointment.getAppointmentId(), appointment.getTitle(), appointment.getStartDateTime(), appointment.getEndDateTime(),
                             appointment.getType(), appointment.getDescription(), appointment.getCustomerId());
                     report.add(line);
                 }
@@ -582,7 +689,8 @@ public class Data {
         }
         //Report 3, total number of customers by country and region
         else{
-            report.add("-------------------------Customers by Region-----------------------");
+            report.add("-------------------------------------------Customers by Region--------------------------------------------\n");
+            report.add("                    Name                       Address                         Phone\n\n");
             ObservableList<Customer> customers = FXCollections.observableArrayList();
             String query1 = "select * from customers order by division_ID";
             Connection connection1 = database.getConnection();
@@ -607,24 +715,27 @@ public class Data {
                 country = database.buildCountries(ps3).get(0);
                 String customerCountry = country.getCountryName();
                 //First case, customer new country and division
+                String text = String.format("%1$20s %2$30s %3$30s", "                " + customer.getCustomerName(), customer.getAddress(), customer.getPhone());
                 if (!(customerCountry.equals(reportCountryName))) {
+
                     report.add(customerCountry);
                     report.add("     " + customerDivision);
-                    report.add("          " + customer.getCustomerName() + "     " + customer.getAddress() + "     " + customer.getPhone());
+                    report.add(text);
                     reportCountryName = customerCountry;
                     reportDivisionName = customerDivision;
                     //second case, customer same country new division
                 } else if (!(customerDivision.equals(reportDivisionName))) {
                     report.add("     " + customerDivision);
-                    report.add("          " + customer.getCustomerName());
+                    report.add(text);
                     reportDivisionName = customerDivision;
                     //third case, customer same country and division
                 } else {
-                    report.add("          " + customer.getCustomerName());
+                    report.add(text);
                 }
             }
             return report;
         }
+
     }
 
     //===========================================Customer Manipulation Methods==========================================
@@ -777,21 +888,7 @@ public class Data {
         return result > 0 ? 1 : 0;
     }
 
-    //==========================================String Manipulation Methods=============================================
-
-    /**
-     * This method takes in a string time in the users time zone, converts it to utc time zone, then converts it to a
-     * LocalDateTime object for comparisons of appointments times  (getAppointments method)
-     *
-     * @param appointment the appointment to compare with
-     * @return the date and time of the appointment as a LocalDateTime object
-     */
-    private LocalDateTime stringToDate(Appointment appointment){
-        String dateTimeString = localToUTC(appointment.getStartDateTime());         //Look at list of appointments and compare times in database prepared statement for getappointment
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(dateTimeString, formatter);
-
-    }
+    //==========================================Time Manipulation Methods=============================================
 
     /**
      * This method takes a string time in the users time zone and converts it into a string in the utc time zone
@@ -808,6 +905,12 @@ public class Data {
         return utcAppointmentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
+    /**
+     * This method takes a string time in the users time zone and converts it into a string in the eastern time zone
+     *
+     * @param localString the string to convert
+     * @return the converted string
+     */
     private String localToEastern(String localString){
         ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());
         ZoneId eastZone = ZoneId.of("America/New_York");
