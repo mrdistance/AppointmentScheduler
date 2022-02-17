@@ -119,7 +119,10 @@ public class AppointmentEditController implements Initializable {
      * @throws IOException the exception if the view can't be found
      */
     @FXML
-    void onCancelButtonClick(ActionEvent event) throws IOException {
+    void onCancelButtonClick(ActionEvent event) throws IOException, SQLException {
+        if(update){
+            data.updateAppointment(appointment);
+        }
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_landing_view.fxml"));
         scene = loader.load();
@@ -178,9 +181,7 @@ public class AppointmentEditController implements Initializable {
             dataGood = false;
         }
         if(dataGood) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_landing_view.fxml"));
-            scene = loader.load();
-            AppointmentLandingController controller = loader.getController();
+
             String messageText = "";
             int contactID = 0;
             for(Contact contact1 : data.getContacts()){
@@ -203,6 +204,9 @@ public class AppointmentEditController implements Initializable {
                 data.addAppointment(appointment);
                 messageText = "Appointment Added Successfully";
             }
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_landing_view.fxml"));
+            scene = loader.load();
+            AppointmentLandingController controller = loader.getController();
             controller.setMessageLabel(messageText);
             controller.getUser(user);
             stage.setScene(new Scene(scene));
@@ -254,6 +258,7 @@ public class AppointmentEditController implements Initializable {
      * @throws SQLException the exception if the connection fails with the database
      */
     void initializeData(Appointment appointment) throws SQLException {
+        this.appointment = appointment;
         data = new Data();
         update = true;
         if(appointment != null) {
@@ -303,6 +308,10 @@ public class AppointmentEditController implements Initializable {
                 startChoiceBox.setDisable(true);
                 endChoiceBox.setDisable(true);
             }else{
+                Appointment placeHolderAppointment = new Appointment(appointment.getAppointmentId(), appointment.getTitle(), appointment.getDescription(),
+                        appointment.getLocation(), appointment.getType(), null, null, appointment.getCustomerId(), appointment.getUserId(), appointment.getContactId());
+                data.updateAppointment(placeHolderAppointment);
+
                 startChoiceBox.setItems(data.getStartTimes(datePicker.getValue()));
                 startChoiceBox.setValue(appointment.getStartDateTime().split(" ")[1]);
                 endChoiceBox.setItems(data.getEndTimes(datePicker.getValue(), startChoiceBox.getValue()));

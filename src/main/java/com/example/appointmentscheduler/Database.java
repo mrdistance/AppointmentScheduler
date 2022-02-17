@@ -241,6 +241,9 @@ public class Database {
      * @return the time string in local time
      */
     private String utcToLocal(String utcString){
+        if(utcString == null){
+            return null;
+        }
         ZoneId localZone = ZoneId.of(TimeZone.getDefault().getID());         //"This gets local timezone
         ZoneId utcZone = ZoneId.of("UTC");                                       //This is db timezone
         LocalDateTime dbTime = LocalDateTime.parse(utcString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
