@@ -69,5 +69,6 @@
             <Font size="16.0" />
          </font>
       </RadioButton>
+      <Label fx:id="userLabel" layoutX="14.0" layoutY="22.0" prefHeight="17.0" prefWidth="301.0" text="Label" textAlignment="CENTER" />
    </children>
 </AnchorPane>

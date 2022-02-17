@@ -32,6 +32,7 @@ public class AppointmentEditController implements Initializable {
     private Appointment appointment;
     private Data data;
     private boolean update;
+    User user;
 
     @FXML
     private TextField appointmentIDField;
@@ -103,10 +104,13 @@ public class AppointmentEditController implements Initializable {
     private Label typeLabel;
 
     @FXML
-    private ChoiceBox<Integer> userIdChoiceBox;
+    private TextField userId;
 
     @FXML
     private Label userIDLabel;
+
+    @FXML
+    private Label userLabel;
 
     /**
      * This method leaves the current scene and returns to the appointment landing scene
@@ -117,7 +121,10 @@ public class AppointmentEditController implements Initializable {
     @FXML
     void onCancelButtonClick(ActionEvent event) throws IOException {
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("appointment_landing_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_landing_view.fxml"));
+        scene = loader.load();
+        AppointmentLandingController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -158,10 +165,6 @@ public class AppointmentEditController implements Initializable {
             errorText+="Customer ID Required!\n";
             dataGood = false;
         }
-        if(userIdChoiceBox.getSelectionModel().getSelectedItem() == null){
-            errorText+="User ID Required!\n";
-            dataGood = false;
-        }
         if(datePicker.getValue() == null){
             errorText+="Date Required!\n";
             dataGood = false;
@@ -188,18 +191,20 @@ public class AppointmentEditController implements Initializable {
             }
             if (update) {
                 Appointment appointment = new Appointment(Integer.parseInt(appointmentIDField.getText()), titleField.getText(), descriptionField.getText(), locationField.getText(),
-                        typeChoiceBox.getValue(), datePicker.getValue() + " " +startChoiceBox.getValue(), datePicker.getValue() + " " + endChoiceBox.getValue(), customerIdChoiceBox.getValue(), userIdChoiceBox.getValue(), contactID);
+                        typeChoiceBox.getValue(), datePicker.getValue() + " " +startChoiceBox.getValue(), datePicker.getValue() + " " + endChoiceBox.getValue(),
+                        customerIdChoiceBox.getValue(), Integer.parseInt(userId.getText()), contactID);
                 data.updateAppointment(appointment);
                 messageText = "Appointment Updated Successfully";
 
             } else {
                 Appointment appointment = new Appointment(1, titleField.getText(), descriptionField.getText(), locationField.getText(),
                         typeChoiceBox.getValue(), datePicker.getValue() + " " +startChoiceBox.getValue(), datePicker.getValue() + " " + endChoiceBox.getValue(),
-                        customerIdChoiceBox.getValue(), userIdChoiceBox.getValue(), contactID);
+                        customerIdChoiceBox.getValue(), Integer.parseInt(userId.getText()), contactID);
                 data.addAppointment(appointment);
                 messageText = "Appointment Added Successfully";
             }
             controller.setMessageLabel(messageText);
+            controller.getUser(user);
             stage.setScene(new Scene(scene));
         }
         else{
@@ -278,7 +283,6 @@ public class AppointmentEditController implements Initializable {
             descriptionField.setText(appointment.getDescription());
             locationField.setText(appointment.getLocation());
             customerIdChoiceBox.setItems(customerIds);
-            userIdChoiceBox.setItems(userIds);
             typeChoiceBox.setItems(data.getTypes());
             try {
                 contactChoiceBox.setValue(data.getContactName(appointment.getContactId()));
@@ -287,7 +291,7 @@ public class AppointmentEditController implements Initializable {
             }
             typeChoiceBox.setValue(appointment.getType());
             customerIdChoiceBox.setValue(appointment.getCustomerId());
-            userIdChoiceBox.setValue(appointment.getUserId());
+            userId.setText(String.valueOf(appointment.getUserId()));
             datePicker.setValue(data.getAppointmentDate(appointment));
             //Compare appointment date to today
             LocalDate today = LocalDate.now();
@@ -354,9 +358,15 @@ public class AppointmentEditController implements Initializable {
             e.printStackTrace();
         }
         customerIdChoiceBox.setItems(customerIds);
-        userIdChoiceBox.setItems(userIds);
         typeChoiceBox.setItems(data.getTypes());
+    }
 
-
+    public void getUser(User userlogin){
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        user = userlogin;
+        userLabel.setText(rb.getString("usernamelabel") + ": " + user.getUserName());
+        if(!update) {
+            userId.setText(String.valueOf(user.getUserId()));
+        }
     }
 }

@@ -49,5 +49,6 @@
             <Font size="12.0" />
          </font>
       </Label>
+      <Label fx:id="userLabel" layoutX="41.0" layoutY="19.0" prefHeight="17.0" prefWidth="254.0" text="Label" textAlignment="CENTER" />
    </children>
 </AnchorPane>

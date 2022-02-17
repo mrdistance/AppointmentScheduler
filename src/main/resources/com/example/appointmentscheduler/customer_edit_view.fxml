@@ -66,5 +66,6 @@
       </Label>
       <ChoiceBox fx:id="countryChoiceBox" layoutX="44.0" layoutY="525.0" onAction="#onCountrySelection" prefWidth="150.0" />
       <ChoiceBox fx:id="divisionChoiceBox" disable="true" layoutX="238.0" layoutY="525.0" prefWidth="150.0" />
+      <Label fx:id="userLabel" alignment="CENTER_RIGHT" layoutX="294.0" layoutY="14.0" prefHeight="17.0" prefWidth="291.0" text="Label" />
    </children>
 </AnchorPane>

@@ -64,6 +64,7 @@ public class LoginController implements Initializable {
     @FXML
     void onLoginButtonClick(ActionEvent event) throws SQLException, IOException {
         User user = data.login(username.getText(), password.getText());
+
         if(user == null){
             errorMessage.setVisible(true);
             password.setText("");
@@ -71,7 +72,10 @@ public class LoginController implements Initializable {
             errorMessage.setText("");
             //Get source of event (button) and where located, cast event to button, then window to stage
             stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-            scene = FXMLLoader.load(getClass().getResource("dashboard_view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("dashboard_view.fxml"));
+            scene = loader.load();
+            DashboardController controller = loader.getController();
+            controller.getUser(user);
             stage.setScene(new Scene(scene));
         }
     }
@@ -85,7 +89,7 @@ public class LoginController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //Locale.setDefault(new Locale("fr"));
+        //Locale.setDefault(new Locale("es"));
         ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         titlelabel.setText(rb.getString("titlelabel"));
         userNameLabel.setText(rb.getString("usernamelabel"));

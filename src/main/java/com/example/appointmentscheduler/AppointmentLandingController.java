@@ -32,6 +32,7 @@ public class AppointmentLandingController implements Initializable {
     Parent scene;
     Data data;
     Appointment appointment;
+    User user;
 
     @FXML
     private Button addButton;
@@ -93,6 +94,9 @@ public class AppointmentLandingController implements Initializable {
     @FXML
     private TableView<Appointment> appointmentTable;
 
+    @FXML
+    private Label userLabel;
+
     /**
      * This method changes the scene to the appointment edit view
      *
@@ -102,7 +106,10 @@ public class AppointmentLandingController implements Initializable {
     @FXML
     void onAddButtonClick(ActionEvent event) throws IOException {
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("appointment_edit_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_edit_view.fxml"));
+        scene = loader.load();
+        AppointmentEditController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -177,7 +184,10 @@ public class AppointmentLandingController implements Initializable {
     void onHomeButtonClick(ActionEvent event) throws IOException {
         //Get source of event (button) and where located, cast event to button, then window to stage
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("dashboard_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("dashboard_view.fxml"));
+        scene = loader.load();
+        DashboardController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -210,6 +220,7 @@ public class AppointmentLandingController implements Initializable {
         if(appointmentTable.getSelectionModel().getSelectedItem() != null) {
             appointment = appointmentTable.getSelectionModel().getSelectedItem();
             controller.initializeData(appointment);
+            controller.getUser(user);
             stage.setScene(new Scene(scene));
 
         }else{
@@ -268,5 +279,11 @@ public class AppointmentLandingController implements Initializable {
     public void setMessageLabel(String text) throws SQLException {
         messageLabel.setText(text);
         appointmentTable.setItems(data.getAppointments(0, data.getDate()));
+    }
+
+    public void getUser(User userlogin){
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        user = userlogin;
+        userLabel.setText(rb.getString("usernamelabel") + ": " + user.getUserName());
     }
 }

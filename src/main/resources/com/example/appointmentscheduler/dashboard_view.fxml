@@ -26,11 +26,12 @@
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="logoutButton" layoutX="491.0" layoutY="340.0" mnemonicParsing="false" onAction="#onLogoutButtonClick" prefHeight="46.0" prefWidth="95.0" text="Logout" wrapText="true">
+      <Button fx:id="logoutButton" layoutX="400.0" layoutY="342.0" mnemonicParsing="false" onAction="#onLogoutButtonClick" prefHeight="44.0" prefWidth="186.0" text="Logout" wrapText="true">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
       <Label layoutX="363.0" layoutY="113.0" />
+      <Label fx:id="userLabel" layoutX="29.0" layoutY="14.0" prefHeight="17.0" prefWidth="264.0" text="Label" textAlignment="CENTER" />
    </children>
 </AnchorPane>

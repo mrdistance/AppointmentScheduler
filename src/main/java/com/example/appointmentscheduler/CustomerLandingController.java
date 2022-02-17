@@ -33,6 +33,7 @@ public class CustomerLandingController implements Initializable {
     Parent scene;
     private Data data;
     private Customer customer;
+    User user;
 
     @FXML
     private Button addButton;
@@ -73,6 +74,9 @@ public class CustomerLandingController implements Initializable {
     @FXML
     private Button updateButton;
 
+    @FXML
+    private Label userLabel;
+
     /**
      * This method changes the scene to the customer edit view
      *
@@ -82,7 +86,10 @@ public class CustomerLandingController implements Initializable {
     @FXML
     void onAddButtonClick(ActionEvent event) throws IOException {
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("customer_edit_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("customer_edit_view.fxml"));
+        scene = loader.load();
+        CustomerEditController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -145,7 +152,10 @@ public class CustomerLandingController implements Initializable {
     void onHomeButtonClick(ActionEvent event) throws IOException {
         //Get source of event (button) and where located, cast event to button, then window to stage
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("dashboard_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("dashboard_view.fxml"));
+        scene = loader.load();
+        DashboardController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -166,6 +176,7 @@ public class CustomerLandingController implements Initializable {
         if(customerTable.getSelectionModel().getSelectedItem() != null) {
             customer = customerTable.getSelectionModel().getSelectedItem();
             controller.initializeData(customer);
+            controller.getUser(user);
             stage.setScene(new Scene(scene));
 
         }else{
@@ -206,5 +217,11 @@ public class CustomerLandingController implements Initializable {
     public void setMessageLabel(String text) throws SQLException {
         messageLabel.setText(text);
         customerTable.setItems(data.getCustomers());
+    }
+
+    public void getUser(User userlogin){
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        user = userlogin;
+        userLabel.setText(rb.getString("usernamelabel") + ": " + user.getUserName());
     }
 }

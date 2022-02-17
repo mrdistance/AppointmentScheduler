@@ -32,6 +32,7 @@ public class CustomerEditController implements Initializable {
     Parent scene;
     private Data data;
     boolean update = false;
+    User user;
 
     @FXML
     private Button cancelButton;
@@ -84,6 +85,9 @@ public class CustomerEditController implements Initializable {
     @FXML
     private Button saveButton;
 
+    @FXML
+    private Label userLabel;
+
     /**
      * This method leaves the current scene and returns to the customer landing scene
      *
@@ -93,7 +97,10 @@ public class CustomerEditController implements Initializable {
     @FXML
     void onCancelButtonClick(ActionEvent event) throws IOException {
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("customer_landing_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("customer_landing_view.fxml"));
+        scene = loader.load();
+        CustomerLandingController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -196,6 +203,7 @@ public class CustomerEditController implements Initializable {
                 messageText = "Customer Added Successfully";
             }
             controller.setMessageLabel(messageText);
+            controller.getUser(user);
             stage.setScene(new Scene(scene));
         }
         else{
@@ -294,5 +302,11 @@ public class CustomerEditController implements Initializable {
             divisions.add(division.getDivisionName());
         }
         divisionChoiceBox.setItems(divisions);
+    }
+
+    public void getUser(User userlogin){
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        user = userlogin;
+        userLabel.setText(rb.getString("usernamelabel") + ": " + user.getUserName());
     }
 }

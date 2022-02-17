@@ -3,13 +3,18 @@ package com.example.appointmentscheduler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * This class provides the controller for the report view
@@ -18,14 +23,30 @@ import java.sql.SQLException;
  *
  * @author Joshua Call
  */
-public class ReportController{
+public class ReportController implements Initializable {
 
     Stage stage;
     Parent scene;
     private Data data = new Data();
+    User user;
 
     @FXML
-    private TextArea displayarea;
+    private TextArea displayArea;
+
+    @FXML
+    private Button appointmentsButton;
+
+    @FXML
+    private Button contactsButton;
+
+    @FXML
+    private Button customersButton;
+
+    @FXML
+    private Button backButton;
+
+    @FXML
+    private Label userLabel;
 
     /**
      * This method displays the appointments report in the text area
@@ -40,7 +61,7 @@ public class ReportController{
         for(String string : data.getReport(1)){
             report1+=string + "\n";
         }
-        displayarea.setText(report1);
+        displayArea.setText(report1);
     }
 
     /**
@@ -53,7 +74,10 @@ public class ReportController{
     void onBackButtonClick(ActionEvent event) throws IOException {
         //Get source of event (button) and where located, cast event to button, then window to stage
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource("dashboard_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("dashboard_view.fxml"));
+        scene = loader.load();
+        DashboardController controller = loader.getController();
+        controller.getUser(user);
         stage.setScene(new Scene(scene));
     }
 
@@ -69,7 +93,7 @@ public class ReportController{
        for(String string : data.getReport(2)){
             report2+=string + "\n";
         }
-        displayarea.setText(report2);
+        displayArea.setText(report2);
     }
 
     /**
@@ -84,6 +108,23 @@ public class ReportController{
         for(String string: data.getReport(3)){
             report3 += string + "\n";
         }
-        displayarea.setText(report3);
+        displayArea.setText(report3);
+    }
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        appointmentsButton.setText(rb.getString("appointments"));
+        contactsButton.setText(rb.getString("schedules"));
+        customersButton.setText(rb.getString("customers"));
+        backButton.setText(rb.getString("back"));
+        displayArea.setPromptText(rb.getString("display"));
+    }
+
+    public void getUser(User userlogin){
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        user = userlogin;
+        userLabel.setText(rb.getString("usernamelabel") + ": " + user.getUserName());
     }
 }
