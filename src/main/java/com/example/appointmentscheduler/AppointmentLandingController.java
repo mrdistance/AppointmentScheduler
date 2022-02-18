@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 
@@ -135,12 +136,13 @@ public class AppointmentLandingController implements Initializable {
      */
     @FXML
     void onDeleteButtonClick(ActionEvent event) throws SQLException {
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
         if(appointmentTable.getSelectionModel().getSelectedItem() != null){
             Appointment appointment = appointmentTable.getSelectionModel().getSelectedItem();
             Popup popup = new Popup();
             AnchorPane popupPane = new AnchorPane();
-            Label popupMessage = new Label("Are you sure you wish to delete Appointment " + appointment.getAppointmentId() + ", " + appointment.getType() + "?");
+            Label popupMessage = new Label(rb.getString("appointmentPopup") + " " + appointment.getAppointmentId() + ", " + appointment.getType() + "?");
             AnchorPane.setTopAnchor(popupMessage, 20.0);
             AnchorPane.setLeftAnchor(popupMessage, 20.0);
             AnchorPane.setRightAnchor(popupMessage, 20.0);
@@ -158,7 +160,7 @@ public class AppointmentLandingController implements Initializable {
             popupYesButton.setOnAction((event1) -> {
                 try {
                     data.deleteAppointment(appointmentTable.getSelectionModel().getSelectedItem());
-                    messageLabel.setText("Appointment "  +appointment.getAppointmentId() + ", " + appointment.getType() + " Deleted Successfully");
+                    messageLabel.setText(rb.getString("appointment")  + " "  +appointment.getAppointmentId() + ", " + appointment.getType() + " " + rb.getString("appointmentDeleteSuccess"));
                     popup.hide();
                     appointmentTable.setItems(data.getAppointments(0, data.getDate()));
                 } catch (SQLException e) {
@@ -170,7 +172,7 @@ public class AppointmentLandingController implements Initializable {
                 messageLabel.setText("");
             });
         }else{
-            messageLabel.setText("Select the Appointment You Wish to Delete");
+            messageLabel.setText(rb.getString("appointmentWishDelete"));
         }
     }
 
@@ -213,6 +215,7 @@ public class AppointmentLandingController implements Initializable {
      */
     @FXML
     void onUpdateButtonClick(ActionEvent event) throws IOException, SQLException {
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         stage =(Stage) ((Button) event.getSource()).getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_edit_view.fxml"));
         scene = loader.load();
@@ -224,7 +227,7 @@ public class AppointmentLandingController implements Initializable {
             stage.setScene(new Scene(scene));
 
         }else{
-            messageLabel.setText("Select the Appointment You Wish to Modify");
+            messageLabel.setText(rb.getString("appointmentModify"));
         }
     }
 
@@ -248,7 +251,18 @@ public class AppointmentLandingController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        allButton.setText(rb.getString("all"));
+        weekButton.setText(rb.getString("week"));
+        monthButton.setText(rb.getString("month"));
+        appointmentLabel.setText(rb.getString("appointments"));
+        addButton.setText(rb.getString("add"));
+        updateButton.setText(rb.getString("update"));
+        deleteButton.setText(rb.getString("delete"));
+        homeButton.setText(rb.getString("home"));
+
         messageLabel.setText("");
+
         data = new Data();
         appointmentIDField.setCellValueFactory(new PropertyValueFactory<>("appointmentId"));
         titleField.setCellValueFactory(new PropertyValueFactory<>("title"));
@@ -277,7 +291,8 @@ public class AppointmentLandingController implements Initializable {
      * @throws SQLException the exception if the connection fails with the database
      */
     public void setMessageLabel(String text) throws SQLException {
-        messageLabel.setText(text);
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        messageLabel.setText(rb.getString(text));
         appointmentTable.setItems(data.getAppointments(0, data.getDate()));
     }
 

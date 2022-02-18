@@ -11,22 +11,22 @@
 
 <AnchorPane prefHeight="607.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.appointmentscheduler.AppointmentLandingController">
    <children>
-      <Button fx:id="homeButton" layoutX="906.0" layoutY="558.0" mnemonicParsing="false" onAction="#onHomeButtonClick" prefHeight="35.0" prefWidth="80.0" text="HOME">
+      <Button fx:id="homeButton" layoutX="828.0" layoutY="558.0" mnemonicParsing="false" onAction="#onHomeButtonClick" prefHeight="35.0" prefWidth="158.0" text="HOME">
          <font>
             <Font size="16.0" />
          </font>
       </Button>
-      <Button fx:id="deleteButton" layoutX="745.0" layoutY="499.0" mnemonicParsing="false" onAction="#onDeleteButtonClick" prefHeight="35.0" prefWidth="80.0" text="DELETE">
+      <Button fx:id="deleteButton" layoutX="701.0" layoutY="499.0" mnemonicParsing="false" onAction="#onDeleteButtonClick" prefHeight="35.0" prefWidth="158.0" text="DELETE">
          <font>
             <Font size="16.0" />
          </font>
       </Button>
-      <Button fx:id="updateButton" layoutX="461.0" layoutY="499.0" mnemonicParsing="false" onAction="#onUpdateButtonClick" text="UPDATE">
+      <Button fx:id="updateButton" layoutX="422.0" layoutY="499.0" mnemonicParsing="false" onAction="#onUpdateButtonClick" prefHeight="35.0" prefWidth="158.0" text="UPDATE">
          <font>
             <Font size="16.0" />
          </font>
       </Button>
-      <Button fx:id="addButton" layoutX="184.0" layoutY="499.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="35.0" prefWidth="80.0" text="ADD">
+      <Button fx:id="addButton" layoutX="143.0" layoutY="499.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="35.0" prefWidth="158.0" text="ADD">
          <font>
             <Font size="16.0" />
          </font>

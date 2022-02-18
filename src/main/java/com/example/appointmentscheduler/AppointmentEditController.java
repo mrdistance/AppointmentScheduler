@@ -195,14 +195,14 @@ public class AppointmentEditController implements Initializable {
                         typeChoiceBox.getValue(), datePicker.getValue() + " " +startChoiceBox.getValue(), datePicker.getValue() + " " + endChoiceBox.getValue(),
                         customerIdChoiceBox.getValue(), userIdChoiceBox.getValue(), contactID);
                 data.updateAppointment(appointment);
-                messageText = "Appointment Updated Successfully";
+                messageText = "appointmentUpdateSuccess";
 
             } else {
                 Appointment appointment = new Appointment(1, titleField.getText(), descriptionField.getText(), locationField.getText(),
                         typeChoiceBox.getValue(), datePicker.getValue() + " " +startChoiceBox.getValue(), datePicker.getValue() + " " + endChoiceBox.getValue(),
                         customerIdChoiceBox.getValue(), userIdChoiceBox.getValue(), contactID);
                 data.addAppointment(appointment);
-                messageText = "Appointment Added Successfully";
+                messageText = "appointmentAddSuccess";
             }
             FXMLLoader loader = new FXMLLoader(getClass().getResource("appointment_landing_view.fxml"));
             scene = loader.load();

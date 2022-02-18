@@ -89,7 +89,7 @@ public class LoginController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //Locale.setDefault(new Locale("fr"));
+        Locale.setDefault(new Locale("es"));
         ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         titlelabel.setText(rb.getString("titlelabel"));
         userNameLabel.setText(rb.getString("usernamelabel"));
