@@ -252,7 +252,8 @@ public class AppointmentEditController implements Initializable {
     /**
      * This method initializes the scene with data brought in from the previous scene (an appointment)
      * A LAMBDA expression is used to more concisely set restrictions on the date picker so that previous dates are not
-     * able to be selected.
+     * able to be selected  This helps by removing the need to implement the specific interface and instead simply pass the
+     * correct parameters to the function through the lambda.
      *
      * @param appointment the appointment selected in the previous scene
      * @throws SQLException the exception if the connection fails with the database
@@ -330,7 +331,8 @@ public class AppointmentEditController implements Initializable {
     /**
      * This method initializes the scene sets up the choice box items
      * A LAMBDA expression is used to more concisely set restrictions on the date picker so that previous dates are not
-     * able to be selected.
+     * able to be selected  This helps by removing the need to implement the specific interface and instead simply pass the
+     * correct parameters to the function through the lambda.
      *
      * @param url a url
      * @param resourceBundle a resource bundle

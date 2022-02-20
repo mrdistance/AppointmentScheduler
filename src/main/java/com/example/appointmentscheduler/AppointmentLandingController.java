@@ -1,5 +1,7 @@
 package com.example.appointmentscheduler;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -98,6 +100,8 @@ public class AppointmentLandingController implements Initializable {
     @FXML
     private Label userLabel;
 
+    @FXML
+    private TextField appointmentSearchField;
     /**
      * This method changes the scene to the appointment edit view
      *
@@ -129,7 +133,9 @@ public class AppointmentLandingController implements Initializable {
     /**
      * This method verifies an appointment is selected then verifies that the user wishes to delete it then deletes it
      * Two LAMBDAS are used here to more concisely display and hide the popup message that verifies the user wishes to delete
-     * the selected appointment
+     * the selected appointment This makes the code simpler by removing the need to write a separate function for the popup
+     * yes and no buttons action events because instead they can be passed the lambda expressions specifying what to do
+     * when triggered and remove the need to implement the specific functional interface.
      *
      * @param event the button press
      * @throws SQLException the exception if the connection fails with the database
@@ -260,7 +266,7 @@ public class AppointmentLandingController implements Initializable {
         updateButton.setText(rb.getString("update"));
         deleteButton.setText(rb.getString("delete"));
         homeButton.setText(rb.getString("home"));
-
+        appointmentSearchField.setPromptText(rb.getString("appointmentsearchprompt"));
         messageLabel.setText("");
 
         data = new Data();
@@ -300,5 +306,69 @@ public class AppointmentLandingController implements Initializable {
         ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
         user = userlogin;
         userLabel.setText(rb.getString("usernamelabel") + ": " + user.getUserName());
+    }
+
+    public void onSearchFieldInput() throws SQLException {                           //Search for a Customer
+        allButton.setSelected(true);
+        ResourceBundle rb = ResourceBundle.getBundle("com/example/appointmentscheduler/language_files/rb");
+        messageLabel.setText("");
+        appointmentTable.getSelectionModel().clearSelection();
+        boolean searchById = true;
+        ObservableList<Appointment> lookedUpItems;
+        try{
+            Integer.parseInt(appointmentSearchField.getText());
+        }catch (NumberFormatException nfe){
+            searchById = false;
+        }
+        if(searchById){                                             //Search by ID
+            if(Integer.parseInt(appointmentSearchField.getText()) >= 1) {
+                lookedUpItems = FXCollections.observableArrayList();
+                Appointment appointment = getAppointmentByID(Integer.parseInt(appointmentSearchField.getText()), data.getAppointments(0, data.getDate()));
+                if (appointment == null) {
+                    messageLabel.setText(rb.getString("noappointmentid"));
+                }
+                lookedUpItems.add(appointment);
+                appointmentTable.setItems(lookedUpItems);
+                appointmentTable.getSelectionModel().select(lookedUpItems.get(0));
+            }else{
+                messageLabel.setText(rb.getString("nocustomerid"));
+            }
+
+        }else {                                                     //Search by Name
+            lookedUpItems = getAppointmentByTitle(appointmentSearchField.getText(), data.getAppointments(0, data.getDate()));
+            if(lookedUpItems.size() == 0){
+                messageLabel.setText(rb.getString("noappointmentname"));
+            }
+            appointmentTable.setItems(lookedUpItems);
+            if (lookedUpItems.size() == 1) {
+                appointmentTable.getSelectionModel().select(lookedUpItems.get(0));
+
+            }
+            if (lookedUpItems.size() == 1 && messageLabel.getText().equals("")){
+                appointmentTable.getSelectionModel().clearSelection();
+            }
+        }
+
+
+    }
+
+    private Appointment getAppointmentByID(int id, ObservableList<Appointment> appointments){
+        Appointment appointmentToFind = null;
+        for(Appointment appointment: appointments){
+            if(appointment.getAppointmentId() == id){
+                appointmentToFind = appointment;
+            }
+        }
+        return  appointmentToFind;
+    }
+
+    private ObservableList<Appointment> getAppointmentByTitle(String name, ObservableList<Appointment> appointments){
+        ObservableList<Appointment> appointmentsToFind = FXCollections.observableArrayList();
+        for(Appointment appointment: appointments){
+            if(appointment.getTitle().contains(name)){
+                appointmentsToFind.add(appointment);
+            }
+        }
+        return appointmentsToFind;
     }
 }

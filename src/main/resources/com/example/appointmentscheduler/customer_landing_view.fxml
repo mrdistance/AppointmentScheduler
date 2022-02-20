@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -14,22 +15,22 @@
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="addButton" alignment="CENTER" layoutX="175.0" layoutY="465.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="63.0" prefWidth="137.0" text="ADD" textAlignment="CENTER">
+      <Button fx:id="addButton" alignment="CENTER" layoutX="178.0" layoutY="489.0" mnemonicParsing="false" onAction="#onAddButtonClick" prefHeight="63.0" prefWidth="137.0" text="ADD" textAlignment="CENTER">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="updateButton" alignment="CENTER" layoutX="333.0" layoutY="465.0" mnemonicParsing="false" onAction="#onUpdateButtonClick" prefHeight="63.0" prefWidth="137.0" text="UPDATE">
+      <Button fx:id="updateButton" alignment="CENTER" layoutX="334.0" layoutY="489.0" mnemonicParsing="false" onAction="#onUpdateButtonClick" prefHeight="63.0" prefWidth="137.0" text="UPDATE">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="deleteButton" layoutX="491.0" layoutY="465.0" mnemonicParsing="false" onAction="#onDeleteButtonClick" prefHeight="63.0" prefWidth="137.0" text="DELETE">
+      <Button fx:id="deleteButton" layoutX="489.0" layoutY="489.0" mnemonicParsing="false" onAction="#onDeleteButtonClick" prefHeight="63.0" prefWidth="137.0" text="DELETE">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <TableView fx:id="customerTable" layoutX="41.0" layoutY="104.0" prefHeight="320.0" prefWidth="738.0">
+      <TableView fx:id="customerTable" layoutX="42.0" layoutY="125.0" prefHeight="310.0" prefWidth="738.0">
         <columns>
           <TableColumn fx:id="idField" prefWidth="53.0" text="ID" />
           <TableColumn fx:id="nameField" prefWidth="177.0" text="Name" />
@@ -39,16 +40,17 @@
             <TableColumn fx:id="divisionField" prefWidth="51.0" text="Division" />
         </columns>
       </TableView>
-      <Label fx:id="customerLabel" alignment="CENTER" layoutX="140.0" layoutY="27.0" prefHeight="58.0" prefWidth="542.0" text="Customers">
+      <Label fx:id="customerLabel" alignment="CENTER" layoutX="140.0" layoutY="14.0" prefHeight="58.0" prefWidth="542.0" text="Customers">
          <font>
             <Font size="40.0" />
          </font>
       </Label>
-      <Label fx:id="messageLabel" alignment="CENTER" layoutX="178.0" layoutY="426.0" prefHeight="38.0" prefWidth="448.0">
+      <Label fx:id="messageLabel" alignment="CENTER" layoutX="179.0" layoutY="445.0" prefHeight="38.0" prefWidth="448.0">
          <font>
             <Font size="12.0" />
          </font>
       </Label>
       <Label fx:id="userLabel" layoutX="41.0" layoutY="19.0" prefHeight="17.0" prefWidth="254.0" text="Label" textAlignment="CENTER" />
+      <TextField fx:id="customerSearchField" layoutX="272.0" layoutY="80.0" onAction="#onSearchFieldInput" prefHeight="25.0" prefWidth="278.0" promptText="Customer ID or Name" />
    </children>
 </AnchorPane>

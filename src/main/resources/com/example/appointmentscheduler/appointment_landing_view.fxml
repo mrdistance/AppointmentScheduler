@@ -5,6 +5,7 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
@@ -45,13 +46,13 @@
             <TableColumn fx:id="userIDField" prefWidth="56.0" text="User_ID" />
         </columns>
       </TableView>
-      <Label fx:id="appointmentLabel" alignment="CENTER" layoutX="180.0" layoutY="30.0" prefHeight="58.0" prefWidth="643.0" text="Appointments">
+      <Label fx:id="appointmentLabel" alignment="CENTER" layoutX="179.0" layoutY="10.0" prefHeight="58.0" prefWidth="643.0" text="Appointments">
          <font>
             <Font size="40.0" />
          </font>
       </Label>
       <Label fx:id="messageLabel" alignment="CENTER" layoutX="222.0" layoutY="463.0" prefHeight="29.0" prefWidth="558.0" />
-      <RadioButton fx:id="allButton" layoutX="264.0" layoutY="99.0" mnemonicParsing="false" onAction="#onAllButtonSelected" selected="true" text="ALL">
+      <RadioButton fx:id="allButton" layoutX="267.0" layoutY="68.0" mnemonicParsing="false" onAction="#onAllButtonSelected" selected="true" text="ALL">
          <font>
             <Font size="16.0" />
          </font>
@@ -59,16 +60,17 @@
             <ToggleGroup fx:id="filterLevel" />
          </toggleGroup>
       </RadioButton>
-      <RadioButton fx:id="weekButton" layoutX="467.0" layoutY="99.0" mnemonicParsing="false" onAction="#onWeekButtonSelected" text="WEEK" toggleGroup="$filterLevel">
+      <RadioButton fx:id="weekButton" layoutX="465.0" layoutY="68.0" mnemonicParsing="false" onAction="#onWeekButtonSelected" text="WEEK" toggleGroup="$filterLevel">
          <font>
             <Font size="16.0" />
          </font>
       </RadioButton>
-      <RadioButton fx:id="monthButton" layoutX="657.0" layoutY="99.0" mnemonicParsing="false" onAction="#onMonthButtonSelected" text="MONTH" toggleGroup="$filterLevel">
+      <RadioButton fx:id="monthButton" layoutX="657.0" layoutY="68.0" mnemonicParsing="false" onAction="#onMonthButtonSelected" text="MONTH" toggleGroup="$filterLevel">
          <font>
             <Font size="16.0" />
          </font>
       </RadioButton>
       <Label fx:id="userLabel" layoutX="14.0" layoutY="22.0" prefHeight="17.0" prefWidth="301.0" text="Label" textAlignment="CENTER" />
+      <TextField fx:id="appointmentSearchField" layoutX="339.0" layoutY="103.0" onAction="#onSearchFieldInput" prefHeight="25.0" prefWidth="324.0" promptText="Appointment ID or Title" />
    </children>
 </AnchorPane>
